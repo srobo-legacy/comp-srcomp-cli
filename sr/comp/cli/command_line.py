@@ -18,4 +18,7 @@ def main(args=None):
         args = sys.argv[1:]
     parser = argument_parser()
     settings = parser.parse_args(args)
-    settings.func(settings)
+    if 'func' in settings:
+        settings.func(settings)
+    else:
+        parser.print_help()
