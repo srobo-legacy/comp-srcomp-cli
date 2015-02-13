@@ -1,0 +1,21 @@
+"""srcomp command-line interface."""
+import sys
+import argparse
+
+from . import print_schedule
+
+def argument_parser():
+    """A parser for CLI tool command line arguments, from argparse."""
+    parser = argparse.ArgumentParser(description='srcomp command-line interface')
+    subparsers = parser.add_subparsers(title='commands')
+    print_schedule.add_subparser(subparsers)
+    return parser
+
+
+def main(args=None):
+    """Run as the CLI tool."""
+    if args is None:
+        args = sys.argv[1:]
+    parser = argument_parser()
+    settings = parser.parse_args(args)
+    settings.func(settings)
