@@ -7,6 +7,7 @@ from . import knocked_out_teams
 from . import validate
 from . import schedule_league
 from . import import_teams
+from . import awards
 
 def argument_parser():
     """A parser for CLI tool command line arguments, from argparse."""
@@ -17,6 +18,7 @@ def argument_parser():
     validate.add_subparser(subparsers)
     schedule_league.add_subparser(subparsers)
     import_teams.add_subparser(subparsers)
+    awards.add_subparser(subparsers)
     return parser
 
 
