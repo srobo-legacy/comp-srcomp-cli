@@ -11,8 +11,6 @@ def command(settings):
     else:
         error_count = validate(comp)
 
-    if not error_count:
-        print("No issues found.")
     exit(error_count)
 
 def add_subparser(subparsers):
