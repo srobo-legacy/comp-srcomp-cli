@@ -254,7 +254,7 @@ class Scheduler(object):
 
 def max_possible_match_periods(sched_db):
     # Compute from the contents of a schedule.yaml the number of league periods
-    match_period_length = sched_db['match_period_lengths']['total']
+    match_period_length = sched_db['match_slot_lengths']['total']
     total_league_time = sum((period['end_time'] - period['start_time']
                               for period in sched_db['match_periods']['league']),
                              timedelta())
