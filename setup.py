@@ -16,7 +16,8 @@ setup(name='sr.comp.cli',
           'sr.comp >=1.0, <2',
           'reportlab >=3.1.44, <4',
           'requests >=2.5.1, <3',
-          'six >=1.9, <2'
+          'six >=1.9, <2',
+          'Pillow >=2.7, <3'
       ],
       entry_points={
           'console_scripts': [
