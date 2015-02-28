@@ -1,0 +1,10 @@
+language: python
+python:
+  - "3.4"
+  - "3.3"
+  - "2.7"
+before_install:
+  - pip install git+git://srobo.org/comp/ranker.git
+  - pip install git+git://srobo.org/comp/srcomp.git
+install: python setup.py install
+script: python setup.py nosetests
