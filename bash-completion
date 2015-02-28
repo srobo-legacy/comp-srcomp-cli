@@ -3,6 +3,14 @@ _srcomp_completion()
 {
 	local cur
 	cur="${COMP_WORDS[COMP_CWORD]}"
+
+	# We only complete the command name
+	if (( $COMP_CWORD > 1 ))
+	then
+		COMPREPLY=( $(compgen -f ${cur}) )
+		return 0
+	fi
+
 	COMPREPLY=( $(compgen -W "`srcomp list-commands`" -- ${cur}) )
 	return 0
 }
