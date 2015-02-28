@@ -16,7 +16,9 @@ setup(name='sr.comp.cli',
           'sr.comp >=1.0, <2',
           'reportlab >=3.1.44, <4',
           'requests >=2.5.1, <3',
-          'ruamel.yaml >=0.5.1, <0.6',
+# While we depend on ruamel, actually installing it here doesn't work
+# You need to do a separate manual install instead
+#         'ruamel.yaml >=0.5.1, <0.6',
           'six >=1.9, <2',
           'timelib >=0.2.4, <0.3',
           'Pillow >=2.7, <3'
