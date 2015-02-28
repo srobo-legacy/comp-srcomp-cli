@@ -12,6 +12,7 @@ from . import schedule_league
 from . import import_teams
 from . import awards
 from . import scorer
+from . import yaml_round_trip
 
 def add_list_commands(subparsers):
     def command(settings):
@@ -34,6 +35,7 @@ def argument_parser():
     import_teams.add_subparser(subparsers)
     awards.add_subparser(subparsers)
     scorer.add_subparser(subparsers)
+    yaml_round_trip.add_subparser(subparsers)
     return parser
 
 

@@ -14,6 +14,7 @@ setup(name='sr.comp.cli',
       author_email='srobo-devel@googlegroups.com',
       install_requires=[
           'sr.comp >=1.0, <2',
+          'ruamel.yaml >=0.5.1, <0.6',
           'reportlab >=3.1.44, <4',
           'requests >=2.5.1, <3',
           'six >=1.9, <2',
