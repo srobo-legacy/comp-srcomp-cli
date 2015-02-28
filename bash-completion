@@ -15,4 +15,4 @@ _srcomp_completion()
 	return 0
 }
 
-complete -F _srcomp_completion srcomp
+complete -o filenames -F _srcomp_completion srcomp
