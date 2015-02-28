@@ -1,4 +1,7 @@
 """srcomp command-line interface."""
+
+from __future__ import print_function
+
 import sys
 import argparse
 
@@ -10,10 +13,20 @@ from . import import_teams
 from . import awards
 from . import scorer
 
+def add_list_commands(subparsers):
+    def command(settings):
+        commands = subparsers.choices.keys()
+        print(" ".join(commands))
+
+    parser = subparsers.add_parser('list-commands',
+                                   help='Lists the available commands; useful for adding auto-completion of command names')
+    parser.set_defaults(func=command)
+
 def argument_parser():
     """A parser for CLI tool command line arguments, from argparse."""
     parser = argparse.ArgumentParser(description='srcomp command-line interface')
     subparsers = parser.add_subparsers(title='commands')
+    add_list_commands(subparsers)
     print_schedule.add_subparser(subparsers)
     knocked_out_teams.add_subparser(subparsers)
     validate.add_subparser(subparsers)

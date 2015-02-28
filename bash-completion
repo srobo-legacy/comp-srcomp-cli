@@ -1,0 +1,10 @@
+
+_srcomp_completion()
+{
+	local cur
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	COMPREPLY=( $(compgen -W "`srcomp list-commands`" -- ${cur}) )
+	return 0
+}
+
+complete -F _srcomp_completion srcomp
