@@ -11,6 +11,7 @@ from . import validate
 from . import schedule_league
 from . import import_teams
 from . import awards
+from . import add_delay
 from . import scorer
 from . import yaml_round_trip
 
@@ -34,6 +35,7 @@ def argument_parser():
     schedule_league.add_subparser(subparsers)
     import_teams.add_subparser(subparsers)
     awards.add_subparser(subparsers)
+    add_delay.add_subparser(subparsers)
     scorer.add_subparser(subparsers)
     yaml_round_trip.add_subparser(subparsers)
     return parser

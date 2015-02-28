@@ -18,10 +18,15 @@ setup(name='sr.comp.cli',
           'reportlab >=3.1.44, <4',
           'requests >=2.5.1, <3',
           'six >=1.9, <2',
+          'timelib >=0.2.4, <0.3',
           'Pillow >=2.7, <3'
       ],
       entry_points={
           'console_scripts': [
               'srcomp = sr.comp.cli.command_line:main'
           ]
-      })
+      },
+      setup_requires=[
+          'nose >=1.3, <2'
+      ],
+      test_suite='nose.collector')
