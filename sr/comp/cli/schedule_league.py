@@ -4,7 +4,6 @@ import random
 import sys
 from collections import Counter
 from itertools import product
-from math import ceil
 from fractions import gcd
 import os.path
 

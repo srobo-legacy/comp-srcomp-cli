@@ -4,7 +4,6 @@ from sr.comp.comp import SRComp
 
 import argparse
 import os.path
-import sys
 from reportlab.pdfgen import canvas
 
 class ScheduleGenerator(object):

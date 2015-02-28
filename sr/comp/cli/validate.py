@@ -1,4 +1,3 @@
-from __future__ import print_function
 
 from sr.comp.comp import SRComp
 from sr.comp.validation import validate
