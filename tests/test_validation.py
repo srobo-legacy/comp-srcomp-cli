@@ -1,5 +1,6 @@
 
 import subprocess
+import os.path
 
 def test_dummy_is_valid():
     test_dir = os.path.dirname(os.path.abspath(__file__))
