@@ -61,10 +61,19 @@ def command(args):
 
     compstate = RawCompstate(args.compstate, local_only=False)
 
-    # TODO: warn the user if there are uncommitted changes in the repo
+    if compstate.has_changes:
+        print_fail("Cannot deploy state with local changes. Commit them and re-run.")
+        compstate.show_changes()
+        exit(1)
+
+    try:
+        revision = compstate.rev_parse(args.revision)
+    except RuntimeError as re:
+        print_fail(re)
+        exit(1)
 
     for host in hosts:
-        retcode = deploy_to(compstate, host, args.revision, args.verbose)
+        retcode = deploy_to(compstate, host, revision, args.verbose)
         if retcode != 0:
             # TODO: work out if it makes sense to try to rollback here?
             print_fail("Failed to deploy to '{0}' (exit status: {1}).".format(host, retcode))
