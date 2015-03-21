@@ -63,10 +63,7 @@ def command(settings):
 
     rtyaml.dump(schedule_path, schedule)
 
-def add_subparser(subparsers):
-    parser = subparsers.add_parser('delay',
-                                   help='Add a delay the competition state')
-    parser.add_argument('compstate', help='competition state repository')
+def add_arguments(parser):
     parser.add_argument('how_long',
                         help='How long to delay the competition for. ' \
                              'Specify either as a number of seconds or '\
@@ -78,4 +75,10 @@ def add_subparser(subparsers):
                              "anything which PHP's strtotime would be "
                              "able to parse. Assumes all times are in "
                              "the current timezone, regardless of input.")
+
+def add_subparser(subparsers):
+    parser = subparsers.add_parser('add-delay',
+                                   help='Add a delay the competition state')
+    parser.add_argument('compstate', help='competition state repository')
+    add_arguments(parser)
     parser.set_defaults(func=command)
