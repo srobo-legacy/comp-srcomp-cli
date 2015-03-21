@@ -62,7 +62,8 @@ def command(args):
     compstate = RawCompstate(args.compstate, local_only=False)
 
     if compstate.has_changes:
-        print_fail("Cannot deploy state with local changes. Commit them and re-run.")
+        print_fail("Cannot deploy state with local changes.",
+                   "Commit or remove them and re-run.")
         compstate.show_changes()
         exit(1)
 
