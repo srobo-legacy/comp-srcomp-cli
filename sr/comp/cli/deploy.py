@@ -47,8 +47,7 @@ def command(args):
     deployments_name = 'deployments.yaml'
     deployments_path = os.path.join(args.compstate, deployments_name)
     if not os.path.exists(deployments_path):
-        print_fail("Cannot deploy '{0}' without a {0}.".format(args.compstate, \
-                                                               deployments_name))
+        print_fail("Cannot deploy state without a {0}.".format(deployments_name))
         exit(1)
 
     with open(deployments_path, 'r') as dp:
