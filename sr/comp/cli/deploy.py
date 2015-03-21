@@ -2,8 +2,9 @@ from __future__ import print_function
 
 import os.path
 from paramiko import AutoAddPolicy, SSHClient
-import subprocess
 import yaml
+
+from sr.comp.raw_compstate import RawCompstate
 
 DEPLOY_USER = 'srcomp'
 FAIL = '\033[91m'
@@ -30,7 +31,11 @@ def deploy_to(compstate, host, revision, verbose):
     # Push the repo
     url = "ssh://{0}@{1}/~/compstate.git".format(DEPLOY_USER, host)
     revspec = "{0}:deploy".format(revision)
-    subprocess.check_call(['git', 'push', url, revspec], cwd=compstate)
+    try:
+        compstate.push(url, revspec)
+    except RuntimeError as re:
+        print_fail(re)
+        exit(1)
 
     with ssh_connection(host) as client:
         _, stdout, stderr = client.exec_command('./update')
@@ -54,10 +59,12 @@ def command(args):
         raw_deployments = yaml.load(dp)
     hosts = raw_deployments['deployments']
 
+    compstate = RawCompstate(args.compstate, local_only=False)
+
     # TODO: warn the user if there are uncommitted changes in the repo
 
     for host in hosts:
-        retcode = deploy_to(args.compstate, host, args.revision, args.verbose)
+        retcode = deploy_to(compstate, host, args.revision, args.verbose)
         if retcode != 0:
             # TODO: work out if it makes sense to try to rollback here?
             print_fail("Failed to deploy to '{0}' (exit status: {1}).".format(host, retcode))
