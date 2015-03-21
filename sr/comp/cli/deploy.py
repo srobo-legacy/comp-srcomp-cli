@@ -66,11 +66,7 @@ def command(args):
         compstate.show_changes()
         exit(1)
 
-    try:
-        revision = compstate.rev_parse(args.revision)
-    except RuntimeError as re:
-        print_fail(re)
-        exit(1)
+    revision = compstate.rev_parse('HEAD')
 
     for host in hosts:
         retcode = deploy_to(compstate, host, revision, args.verbose)
@@ -84,6 +80,4 @@ def add_subparser(subparsers):
                                    help='Deploy a given competition state to all known hosts')
     parser.add_argument('--verbose', action='store_true')
     parser.add_argument('compstate', help='competition state repository')
-    parser.add_argument('revision', nargs='?', default='HEAD',
-                        help='revision to deploy (defaults to HEAD)')
     parser.set_defaults(func=command)
