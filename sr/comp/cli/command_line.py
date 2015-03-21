@@ -7,6 +7,7 @@ import argparse
 
 from . import print_schedule
 from . import knocked_out_teams
+from . import update
 from . import validate
 from . import schedule_league
 from . import import_teams
@@ -31,6 +32,7 @@ def argument_parser():
     add_list_commands(subparsers)
     print_schedule.add_subparser(subparsers)
     knocked_out_teams.add_subparser(subparsers)
+    update.add_subparser(subparsers)
     validate.add_subparser(subparsers)
     schedule_league.add_subparser(subparsers)
     import_teams.add_subparser(subparsers)
