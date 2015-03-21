@@ -17,7 +17,7 @@ def ssh_connection(host):
     return client
 
 def print_fail(*args, **kargs):
-    msg = ' '.join(args)
+    msg = ' '.join(map(str, args))
     print(FAIL + msg + ENDC, **kargs)
 
 def print_buffer(buf):
