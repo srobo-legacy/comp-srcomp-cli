@@ -11,6 +11,7 @@ from sr.comp.validation import validate
 DEPLOY_USER = 'srcomp'
 BOLD = '\033[1m'
 FAIL = '\033[91m'
+OKBLUE = '\033[94m'
 ENDC = '\033[0m'
 
 # Cope with Python 3 renaming raw_input
@@ -109,6 +110,8 @@ def command(args):
             # TODO: work out if it makes sense to try to rollback here?
             print_fail("Failed to deploy to '{0}' (exit status: {1}).".format(host, retcode))
             exit(retcode)
+
+    print(BOLD + OKBLUE + "Success" + ENDC)
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser('deploy',
