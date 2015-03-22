@@ -2,13 +2,19 @@ from __future__ import print_function
 
 import os.path
 from paramiko import AutoAddPolicy, SSHClient
+import sys
 import yaml
 
 from sr.comp.raw_compstate import RawCompstate
+from sr.comp.validation import validate
 
 DEPLOY_USER = 'srcomp'
 FAIL = '\033[91m'
 ENDC = '\033[0m'
+
+# Cope with Python 3 renaming raw_input
+try: input = raw_input
+except NameError: pass
 
 def ssh_connection(host):
     client = SSHClient()
@@ -24,6 +30,11 @@ def print_fail(*args, **kargs):
 def print_buffer(buf):
     prefix = '> '
     print(prefix + prefix.join(buf.readlines()).strip())
+
+def query_warn(msg):
+    query = FAIL + "Warning: {0}. Continue? [y/N]: ".format(msg) + ENDC
+    if input(query).lower() != 'y':
+        exit(1)
 
 def deploy_to(compstate, host, revision, verbose):
     print("Deploying to {0}:".format(host))
@@ -66,6 +77,10 @@ def command(args):
                    "Commit or remove them and re-run.")
         compstate.show_changes()
         exit(1)
+
+    num_errors = validate(compstate.load())
+    if num_errors:
+        query_warn("State has validation errors (see above)")
 
     revision = compstate.rev_parse('HEAD')
 
