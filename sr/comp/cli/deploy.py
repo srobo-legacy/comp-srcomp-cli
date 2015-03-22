@@ -41,7 +41,11 @@ def deploy_to(compstate, host, revision, verbose):
 
     # Push the repo
     url = "ssh://{0}@{1}/~/compstate.git".format(DEPLOY_USER, host)
-    revspec = "{0}:deploy".format(revision)
+    # Make a new branch for this revision so that it's visible to
+    # anything which fetches the repo; use the revision id in the
+    # branch name to avoid race conditions without needing to come
+    # up with our own unique identifier
+    revspec = "{0}:refs/heads/deploy-{0}".format(revision)
     try:
         compstate.push(url, revspec)
     except RuntimeError as re:
