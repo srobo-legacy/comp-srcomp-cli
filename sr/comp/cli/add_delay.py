@@ -63,6 +63,8 @@ def command(settings):
 
     rtyaml.dump(schedule_path, schedule)
 
+    return how_long, when
+
 def add_arguments(parser):
     parser.add_argument('how_long',
                         help='How long to delay the competition for. ' \
