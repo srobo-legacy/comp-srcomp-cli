@@ -9,6 +9,7 @@ from sr.comp.raw_compstate import RawCompstate
 from sr.comp.validation import validate
 
 DEPLOY_USER = 'srcomp'
+BOLD = '\033[1m'
 FAIL = '\033[91m'
 ENDC = '\033[0m'
 
@@ -25,7 +26,7 @@ def ssh_connection(host):
 
 def print_fail(*args, **kargs):
     msg = ' '.join(map(str, args))
-    print(FAIL + msg + ENDC, **kargs)
+    print(BOLD + FAIL + msg + ENDC, **kargs)
 
 def print_buffer(buf):
     prefix = '> '
@@ -37,7 +38,7 @@ def query_warn(msg):
         exit(1)
 
 def deploy_to(compstate, host, revision, verbose):
-    print("Deploying to {0}:".format(host))
+    print(BOLD + "Deploying to {0}:".format(host) + ENDC)
 
     # Push the repo
     url = "ssh://{0}@{1}/~/compstate.git".format(DEPLOY_USER, host)
