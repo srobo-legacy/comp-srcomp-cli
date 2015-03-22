@@ -192,16 +192,14 @@ def check_host_state(compstate, host, revision):
     else:
         return SKIP
 
-def command(args):
-    hosts = get_deployments(args)
-    compstate = RawCompstate(args.compstate, local_only=False)
-
+def require_no_changes(compstate):
     if compstate.has_changes:
         print_fail("Cannot deploy state with local changes.",
                    "Commit or remove them and re-run.")
         compstate.show_changes()
         exit(1)
 
+def require_valid(compstate):
     try:
         comp = compstate.load()
     except Exception as e:
@@ -212,6 +210,12 @@ def command(args):
     if num_errors:
         query_warn("State has validation errors (see above)")
 
+def command(args):
+    hosts = get_deployments(args)
+    compstate = RawCompstate(args.compstate, local_only=False)
+
+    require_no_changes(compstate)
+    require_valid(compstate)
     revision = compstate.rev_parse('HEAD')
 
     for host in hosts:
@@ -229,11 +233,14 @@ def command(args):
 
     print(BOLD + OKBLUE + "Success" + ENDC)
 
-def add_subparser(subparsers):
-    help_msg = 'Deploy a given competition state to all known hosts'
-    parser = subparsers.add_parser('deploy', help=help_msg, description=help_msg)
+def add_options(parser):
     parser.add_argument('--verbose', action='store_true')
     parser.add_argument('--skip-host-check', action='store_true',
                         help='skips checking the current state of the hosts')
+
+def add_subparser(subparsers):
+    help_msg = 'Deploy a given competition state to all known hosts'
+    parser = subparsers.add_parser('deploy', help=help_msg, description=help_msg)
+    add_options(parser)
     parser.add_argument('compstate', help='competition state repository')
     parser.set_defaults(func=command)
