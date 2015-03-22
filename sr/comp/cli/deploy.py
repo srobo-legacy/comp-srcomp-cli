@@ -53,7 +53,8 @@ def deploy_to(compstate, host, revision, verbose):
         exit(1)
 
     with ssh_connection(host) as client:
-        _, stdout, stderr = client.exec_command('./update')
+        cmd = "./update '{0}'".format(revision)
+        _, stdout, stderr = client.exec_command(cmd)
         retcode = stdout.channel.recv_exit_status()
 
         if verbose or retcode != 0:
