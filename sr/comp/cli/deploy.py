@@ -44,7 +44,10 @@ def deploy_to(compstate, host, revision, verbose):
     # Make a new branch for this revision so that it's visible to
     # anything which fetches the repo; use the revision id in the
     # branch name to avoid race conditions without needing to come
-    # up with our own unique identifier
+    # up with our own unique identifier.
+    # This also means we don't need to worry about whether or not the
+    # revision exists in the target, since this push will simply no-op
+    # if it's already present
     revspec = "{0}:refs/heads/deploy-{0}".format(revision)
     try:
         compstate.push(url, revspec)
