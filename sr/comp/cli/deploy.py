@@ -59,7 +59,7 @@ def deploy_to(compstate, host, revision, verbose):
 
         return retcode
 
-def command(args):
+def get_deployments(args):
     deployments_name = 'deployments.yaml'
     deployments_path = os.path.join(args.compstate, deployments_name)
     if not os.path.exists(deployments_path):
@@ -70,6 +70,10 @@ def command(args):
         raw_deployments = yaml.load(dp)
     hosts = raw_deployments['deployments']
 
+    return hosts
+
+def command(args):
+    hosts = get_deployments(args)
     compstate = RawCompstate(args.compstate, local_only=False)
 
     if compstate.has_changes:
