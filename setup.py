@@ -28,6 +28,7 @@ setup(name='sr.comp.cli',
           ]
       },
       setup_requires=[
+          'mock >=1.0.1, <2',
           'nose >=1.3, <2'
       ],
       test_suite='nose.collector')

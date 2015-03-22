@@ -36,9 +36,44 @@ def print_buffer(buf):
     prefix = '> '
     print(prefix + prefix.join(buf.readlines()).strip())
 
+def get_input(prompt):
+    # Wrapper to simplify mocking
+    return input(prompt)
+
+def query(question, options, default=None):
+    if default:
+        assert default in options
+
+    options = [o.upper() if o == default else o.lower() for o in options]
+    assert len(set(options)) == len(options)
+    opts = '/'.join(options)
+
+    query = format_fail("{0} [{1}]: ".format(question.rstrip(), opts))
+
+    while True:
+        # Loop until we get a suitable response from the user
+        resp = get_input(query).lower()
+
+        if resp in options:
+            return resp
+
+        # If there's a default value, use that
+        if default:
+            return default
+
+def query_bool(question, default_val = None):
+    options = ('y', 'n')
+    if default_val is True:
+        default = 'y'
+    elif default_val is False:
+        default = 'n'
+    else:
+        default = None
+    return query(question, options, default) == 'y'
+
 def query_warn(msg):
-    query = format_fail("Warning: {0}. Continue? [y/N]: ".format(msg))
-    if input(query).lower() != 'y':
+    query_msg = "Warning: {0}. Continue?".format(msg)
+    if not query_bool(query_msg, False):
         exit(1)
 
 def deploy_to(compstate, host, revision, verbose):
