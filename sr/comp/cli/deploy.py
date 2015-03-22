@@ -118,9 +118,9 @@ def deploy_to(compstate, host, revision, verbose):
 
         return retcode
 
-def get_deployments(args):
+def get_deployments(compstate_path):
     deployments_name = 'deployments.yaml'
-    deployments_path = os.path.join(args.compstate, deployments_name)
+    deployments_path = os.path.join(compstate_path, deployments_name)
     if not os.path.exists(deployments_path):
         print_fail("Cannot deploy state without a {0}.".format(deployments_name))
         exit(1)
@@ -213,14 +213,8 @@ def require_valid(compstate):
     if num_errors:
         query_warn("State has validation errors (see above)")
 
-def command(args):
-    hosts = get_deployments(args)
-    compstate = RawCompstate(args.compstate, local_only=False)
-
-    require_no_changes(compstate)
-    require_valid(compstate)
+def run_deployments(args, compstate, hosts):
     revision = compstate.rev_parse('HEAD')
-
     for host in hosts:
         if not args.skip_host_check:
             skip_host = check_host_state(compstate, host, revision)
@@ -235,6 +229,15 @@ def command(args):
             exit(retcode)
 
     print(BOLD + OKBLUE + "Success" + ENDC)
+
+def command(args):
+    hosts = get_deployments(args.compstate)
+    compstate = RawCompstate(args.compstate, local_only=False)
+
+    require_no_changes(compstate)
+    require_valid(compstate)
+
+    run_deployments(args, compstate, hosts)
 
 def add_options(parser):
     parser.add_argument('--verbose', action='store_true')
