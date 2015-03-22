@@ -25,16 +25,19 @@ def ssh_connection(host):
     client.connect(host, username = DEPLOY_USER)
     return client
 
-def print_fail(*args, **kargs):
+def format_fail(*args):
     msg = ' '.join(map(str, args))
-    print(BOLD + FAIL + msg + ENDC, **kargs)
+    return BOLD + FAIL + msg + ENDC
+
+def print_fail(*args, **kargs):
+    print(format_fail(*args), **kargs)
 
 def print_buffer(buf):
     prefix = '> '
     print(prefix + prefix.join(buf.readlines()).strip())
 
 def query_warn(msg):
-    query = FAIL + "Warning: {0}. Continue? [y/N]: ".format(msg) + ENDC
+    query = format_fail("Warning: {0}. Continue? [y/N]: ".format(msg))
     if input(query).lower() != 'y':
         exit(1)
 
