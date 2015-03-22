@@ -78,7 +78,13 @@ def command(args):
         compstate.show_changes()
         exit(1)
 
-    num_errors = validate(compstate.load())
+    try:
+        comp = compstate.load()
+    except Exception as e:
+        print_fail("State cannot be loaded: {0}".format(e))
+        exit(1)
+
+    num_errors = validate(comp)
     if num_errors:
         query_warn("State has validation errors (see above)")
 
