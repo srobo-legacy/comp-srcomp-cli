@@ -3,7 +3,6 @@ from __future__ import print_function
 import json
 import os.path
 from paramiko import AutoAddPolicy, SSHClient
-import sys
 import urllib
 import yaml
 
