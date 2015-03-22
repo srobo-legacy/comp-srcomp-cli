@@ -126,8 +126,7 @@ def get_deployments(args):
     return hosts
 
 def get_current_state(host):
-    # TODO: will the compbox be https?
-    url = "https://{0}/comp-api/state".format(host)
+    url = "http://{0}/comp-api/state".format(host)
     try:
         page = urllib.urlopen(url)
         raw_state = json.load(page)
