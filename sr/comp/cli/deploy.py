@@ -1,8 +1,10 @@
 from __future__ import print_function
 
+import json
 import os.path
 from paramiko import AutoAddPolicy, SSHClient
 import sys
+import urllib
 import yaml
 
 from sr.comp.raw_compstate import RawCompstate
@@ -76,11 +78,15 @@ def query_warn(msg):
     if not query_bool(query_msg, False):
         exit(1)
 
+def ref_compstate(host):
+    url = "ssh://{0}@{1}/~/compstate.git".format(DEPLOY_USER, host)
+    return url
+
 def deploy_to(compstate, host, revision, verbose):
     print(BOLD + "Deploying to {0}:".format(host) + ENDC)
 
     # Push the repo
-    url = "ssh://{0}@{1}/~/compstate.git".format(DEPLOY_USER, host)
+    url = ref_compstate(host)
     # Make a new branch for this revision so that it's visible to
     # anything which fetches the repo; use the revision id in the
     # branch name to avoid race conditions without needing to come
@@ -120,6 +126,74 @@ def get_deployments(args):
 
     return hosts
 
+def get_current_state(host):
+    # TODO: will the compbox be https?
+    url = "https://{0}/comp-api/state".format(host)
+    try:
+        page = urllib.urlopen(url)
+        raw_state = json.load(page)
+    except:
+        return None
+    else:
+        return raw_state['state']
+
+def check_host_state(compstate, host, revision):
+    """
+    Compares the host state to the revision we want to deploy. If the
+    host's state isn't in the history of the deploy revision then various
+    options are presented to the user.
+
+    Returrns whether or not to skip deploying to the host.
+    """
+    SKIP = True
+    UPDATE = False
+    state = get_current_state(host)
+    if not state:
+        tpl = "Failed to get state for {0}, cannot advise about history." \
+              " Deploy anyway?"
+        if query_bool(tpl.format(host, state), True):
+            return UPDATE
+        else:
+            return SKIP
+
+    if state == revision:
+        print("Host {0} already has requested revision ({1})".format(host, revision[:8]))
+        return SKIP
+
+    # Ideal case:
+    if compstate.has_ancestor(state):
+        return UPDATE
+
+    # Check for unknown commit
+    if not compstate.has_commit(state):
+        tpl = "Host {0} has unknown state '{1}'. Try to fetch it?"
+        if query_bool(tpl.format(host, state), True):
+            compstate.fetch('origin', quiet=True)
+            compstate.fetch(ref_compstate(host), quiet=True)
+
+    # Old revision:
+    if compstate.has_descendant(state):
+        tpl = "Host {0} has more recent state '{1}'. Deploy anyway?"
+        if query_bool(tpl.format(host, state), True):
+            return UPDATE
+        else:
+            return SKIP
+
+    # Some other revision:
+    if compstate.has_commit(state):
+        tpl = "Host {0} has sibling state '{1}'. Deploy anyway?"
+        if query_bool(tpl.format(host, state), True):
+            return UPDATE
+        else:
+            return SKIP
+
+    # An unknown state
+    tpl = "Host {0} has unknown state '{1}'. Deploy anyway?"
+    if query_bool(tpl.format(host, state), True):
+        return UPDATE
+    else:
+        return SKIP
+
 def command(args):
     hosts = get_deployments(args)
     compstate = RawCompstate(args.compstate, local_only=False)
@@ -143,6 +217,12 @@ def command(args):
     revision = compstate.rev_parse('HEAD')
 
     for host in hosts:
+        if not args.skip_host_check:
+            skip_host = check_host_state(compstate, host, revision)
+            if skip_host:
+                print(BOLD + "Skipping {0}.".format(host) + ENDC)
+                continue
+
         retcode = deploy_to(compstate, host, revision, args.verbose)
         if retcode != 0:
             # TODO: work out if it makes sense to try to rollback here?
@@ -155,5 +235,7 @@ def add_subparser(subparsers):
     parser = subparsers.add_parser('deploy',
                                    help='Deploy a given competition state to all known hosts')
     parser.add_argument('--verbose', action='store_true')
+    parser.add_argument('--skip-host-check', action='store_true',
+                        help='skips checking the current state of the hosts')
     parser.add_argument('compstate', help='competition state repository')
     parser.set_defaults(func=command)
