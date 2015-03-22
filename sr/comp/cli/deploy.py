@@ -230,8 +230,8 @@ def command(args):
     print(BOLD + OKBLUE + "Success" + ENDC)
 
 def add_subparser(subparsers):
-    parser = subparsers.add_parser('deploy',
-                                   help='Deploy a given competition state to all known hosts')
+    help_msg = 'Deploy a given competition state to all known hosts'
+    parser = subparsers.add_parser('deploy', help=help_msg, description=help_msg)
     parser.add_argument('--verbose', action='store_true')
     parser.add_argument('--skip-host-check', action='store_true',
                         help='skips checking the current state of the hosts')
