@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+from contextlib import contextmanager
 import json
 import os.path
 from paramiko import AutoAddPolicy, SSHClient
@@ -29,6 +30,14 @@ def ssh_connection(host):
 def format_fail(*args):
     msg = ' '.join(map(str, args))
     return BOLD + FAIL + msg + ENDC
+
+@contextmanager
+def exit_on_exception(msg='{0}', kind=Exception):
+    try:
+        yield
+    except kind as e:
+        print_fail(msg.format(e))
+        exit(1)
 
 def print_fail(*args, **kargs):
     print(format_fail(*args), **kargs)
@@ -94,11 +103,8 @@ def deploy_to(compstate, host, revision, verbose):
     # revision exists in the target, since this push will simply no-op
     # if it's already present
     revspec = "{0}:refs/heads/deploy-{0}".format(revision)
-    try:
+    with exit_on_exception(kind=RuntimeError):
         compstate.push(url, revspec)
-    except RuntimeError as re:
-        print_fail(re)
-        exit(1)
 
     with ssh_connection(host) as client:
         cmd = "./update '{0}'".format(revision)
@@ -200,11 +206,8 @@ def require_no_changes(compstate):
         exit(1)
 
 def require_valid(compstate):
-    try:
+    with exit_on_exception("State cannot be loaded: {0}"):
         comp = compstate.load()
-    except Exception as e:
-        print_fail("State cannot be loaded: {0}".format(e))
-        exit(1)
 
     num_errors = validate(comp)
     if num_errors:
