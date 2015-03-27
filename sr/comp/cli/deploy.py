@@ -104,7 +104,7 @@ def deploy_to(compstate, host, revision, verbose):
     # if it's already present
     revspec = "{0}:refs/heads/deploy-{0}".format(revision)
     with exit_on_exception(kind=RuntimeError):
-        compstate.push(url, revspec)
+        compstate.push(url, revspec, err_msg="Failed to push to {0}.".format(host))
 
     with ssh_connection(host) as client:
         cmd = "./update '{0}'".format(revision)
