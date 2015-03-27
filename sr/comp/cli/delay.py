@@ -15,7 +15,13 @@ def command(args):
         with deploy.exit_on_exception():
             compstate.pull_fast_forward()
 
-    _, when = add_delay.command(args)
+    how_long, when = add_delay.command(args)
+
+    if args.when != 'now':
+        msg = "Confirm adding {0} delay at {1}".format(how_long, when)
+        if not deploy.query_bool(msg, default_val=True):
+            print("Leaving state with local modifications")
+            exit()
 
     deploy.require_valid(compstate)
 
