@@ -13,6 +13,7 @@ setup(name='sr.comp.cli',
       author='Student Robotics Competition Software SIG',
       author_email='srobo-devel@googlegroups.com',
       install_requires=[
+          'paramiko >=1.10, <2',
           'sr.comp >=1.0, <2',
           'reportlab >=3.1.44, <4',
           'requests >=2.5.1, <3',
@@ -27,6 +28,7 @@ setup(name='sr.comp.cli',
           ]
       },
       setup_requires=[
+          'mock >=1.0.1, <2',
           'nose >=1.3, <2'
       ],
       test_suite='nose.collector')
