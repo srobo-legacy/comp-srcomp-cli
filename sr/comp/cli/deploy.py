@@ -4,12 +4,13 @@ from contextlib import contextmanager
 import json
 import os.path
 from paramiko import AutoAddPolicy, SSHClient
-import urllib
+import urllib2
 import yaml
 
 from sr.comp.raw_compstate import RawCompstate
 from sr.comp.validation import validate
 
+API_TIMEOUT_SECONDS = 3
 DEPLOY_USER = 'srcomp'
 BOLD = '\033[1m'
 FAIL = '\033[91m'
@@ -134,14 +135,14 @@ def get_deployments(compstate_path):
 def get_current_state(host):
     url = "http://{0}/comp-api/state".format(host)
     try:
-        page = urllib.urlopen(url)
+        page = urllib2.urlopen(url, timeout = API_TIMEOUT_SECONDS)
         raw_state = json.load(page)
     except:
         return None
     else:
         return raw_state['state']
 
-def check_host_state(compstate, host, revision):
+def check_host_state(compstate, host, revision, verbose):
     """
     Compares the host state to the revision we want to deploy. If the
     host's state isn't in the history of the deploy revision then various
@@ -151,6 +152,8 @@ def check_host_state(compstate, host, revision):
     """
     SKIP = True
     UPDATE = False
+    if verbose:
+        print("Checking host state for {0} (timeout {1} seconds).".format(host, API_TIMEOUT_SECONDS))
     state = get_current_state(host)
     if not state:
         tpl = "Failed to get state for {0}, cannot advise about history." \
@@ -217,7 +220,7 @@ def run_deployments(args, compstate, hosts):
     revision = compstate.rev_parse('HEAD')
     for host in hosts:
         if not args.skip_host_check:
-            skip_host = check_host_state(compstate, host, revision)
+            skip_host = check_host_state(compstate, host, revision, args.verbose)
             if skip_host:
                 print(BOLD + "Skipping {0}.".format(host) + ENDC)
                 continue
