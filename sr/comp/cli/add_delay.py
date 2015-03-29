@@ -1,14 +1,5 @@
-from __future__ import print_function
 
-from datetime import timedelta
-from dateutil.tz import tzlocal
-import os.path
-import re
-import timelib
-
-from . import yaml_round_trip as rtyaml
-
-time_parse_regex = re.compile(r'^((?P<hours>\d+?)hr)?((?P<minutes>\d+?)m)?((?P<seconds>\d+?)s)?$')
+time_parse_pattern = r'^((?P<hours>\d+?)hr)?((?P<minutes>\d+?)m)?((?P<seconds>\d+?)s)?$'
 
 class BadDurationException(Exception):
     def __init__(self, time_str):
@@ -16,7 +7,10 @@ class BadDurationException(Exception):
         super(BadDurationException, self).__init__(msg)
 
 def parse_duration(time_str):
-    parts = time_parse_regex.match(time_str)
+    from datetime import timedelta
+    import re
+
+    parts = re.match(time_parse_pattern, time_str)
     if not parts:
         if not time_str.isdigit():
             raise BadDurationException(time_str)
@@ -31,6 +25,9 @@ def parse_duration(time_str):
     return timedelta(**time_params)
 
 def parse_time(when_str):
+    import timelib
+    from dateutil.tz import tzlocal
+
     when = timelib.strtodatetime(when_str)
     # Timezone information gets ignored, and the resulting datetime is
     # timezone-unaware. However the compstate needs timezone data to be
@@ -50,6 +47,10 @@ def add_delay(schedule, delay_seconds, when):
     delays.append(new_delay)
 
 def command(settings):
+    import os.path
+
+    from sr.comp.cli import yaml_round_trip as rtyaml
+
     schedule_path = os.path.join(settings.compstate, "schedule.yaml")
     schedule = rtyaml.load(schedule_path)
 

@@ -1,8 +1,8 @@
 
-from sr.comp.comp import SRComp
-from sr.comp.validation import validate
-
 def command(settings):
+    from sr.comp.comp import SRComp
+    from sr.comp.validation import validate
+
     comp = SRComp(settings.compstate)
 
     if settings.lax:

@@ -1,9 +1,9 @@
 from __future__ import print_function
 
-from sr.comp.comp import SRComp
-import os.path
-
 def command(settings):
+    from sr.comp.comp import SRComp
+    import os.path
+
     comp = SRComp(os.path.realpath(settings.compstate))
 
     teams_last_round = set()

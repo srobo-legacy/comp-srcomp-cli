@@ -1,11 +1,11 @@
 from __future__ import print_function
 
-from sr.comp.raw_compstate import RawCompstate
-
 from sr.comp.cli import add_delay
 from sr.comp.cli import deploy
 
 def command(args):
+    from sr.comp.raw_compstate import RawCompstate
+
     hosts = deploy.get_deployments(args.compstate)
     compstate = RawCompstate(args.compstate, local_only=False)
 

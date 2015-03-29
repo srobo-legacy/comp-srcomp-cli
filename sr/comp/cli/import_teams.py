@@ -1,10 +1,3 @@
-import yaml
-import os.path
-
-from PIL import Image
-from six import BytesIO
-from six.moves.urllib.parse import urljoin
-import requests
 
 def format_team(entry):
     if 'team_name' in entry:
@@ -17,6 +10,12 @@ def format_team(entry):
 
 
 def download_team_images(server, team_data, compstate):
+    import os
+    from PIL import Image
+    from six import BytesIO
+    from six.moves.urllib.parse import urljoin
+    import requests
+
     team_images_dir = os.path.join(compstate, 'teams', 'images')
     try:
         os.makedirs(team_images_dir)
@@ -36,6 +35,11 @@ def download_team_images(server, team_data, compstate):
 
 
 def command(settings):
+    import os.path
+    import requests
+    from six.moves.urllib.parse import urljoin
+    import yaml
+
     teams_yaml = os.path.join(settings.compstate, 'teams.yaml')
     target = urljoin(settings.server, 'teams-data.php')
     team_data = requests.get(target).json()

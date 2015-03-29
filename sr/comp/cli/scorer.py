@@ -1,9 +1,7 @@
-import webbrowser
-import threading
-import time
-import socket
 
 def find_unused_port():
+    import socket
+
     sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
     sock.bind(('::1', 0))
     print(sock.getsockname())
@@ -12,6 +10,10 @@ def find_unused_port():
     return port
 
 def command(settings):
+    import webbrowser
+    import threading
+    import time
+
     try:
         import sr.comp.scorer
     except ImportError:

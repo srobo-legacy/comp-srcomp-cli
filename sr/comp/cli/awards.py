@@ -1,11 +1,11 @@
 from __future__ import print_function
 
-import os.path
-
-from sr.comp.comp import SRComp
-from sr.comp.winners import Award
-
 def command(settings):
+    import os.path
+
+    from sr.comp.comp import SRComp
+    from sr.comp.winners import Award
+
     comp = SRComp(os.path.realpath(settings.compstate))
 
     def format_team(tla):

@@ -1,12 +1,6 @@
 from __future__ import print_function
 
 from contextlib import contextmanager
-import simplejson as json
-from paramiko import AutoAddPolicy, SSHClient
-from six.moves.urllib.request import urlopen
-
-from sr.comp.raw_compstate import RawCompstate
-from sr.comp.validation import validate
 
 API_TIMEOUT_SECONDS = 3
 DEPLOY_USER = 'srcomp'
@@ -20,6 +14,8 @@ try: input = raw_input
 except NameError: pass
 
 def ssh_connection(host):
+    from paramiko import AutoAddPolicy, SSHClient
+
     client = SSHClient()
     client.load_system_host_keys()
     client.set_missing_host_key_policy(AutoAddPolicy())
@@ -122,6 +118,9 @@ def get_deployments(compstate):
         return compstate.deployments
 
 def get_current_state(host):
+    import simplejson as json
+    from six.moves.urllib.request import urlopen
+
     url = "http://{0}/comp-api/state".format(host)
     try:
         page = urlopen(url, timeout = API_TIMEOUT_SECONDS)
@@ -199,6 +198,8 @@ def require_no_changes(compstate):
         exit(1)
 
 def require_valid(compstate):
+    from sr.comp.validation import validate
+
     with exit_on_exception("State cannot be loaded: {0}"):
         comp = compstate.load()
 
@@ -224,6 +225,8 @@ def run_deployments(args, compstate, hosts):
     print(BOLD + OKBLUE + "Done" + ENDC)
 
 def command(args):
+    from sr.comp.raw_compstate import RawCompstate
+
     compstate = RawCompstate(args.compstate, local_only=False)
     hosts = get_deployments(compstate)
 

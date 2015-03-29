@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from sr.comp.comp import SRComp
-
 import argparse
-import os.path
-from reportlab.pdfgen import canvas
 
 class ScheduleGenerator(object):
     def __init__(self, target, arenas, state):
+        from reportlab.pdfgen import canvas
+
         self.canvas = canvas.Canvas(target)
         self.state = state
         self.width = 595
@@ -93,6 +91,10 @@ class ScheduleGenerator(object):
         self.canvas.save()
 
 def command(settings):
+    import os.path
+
+    from sr.comp.comp import SRComp
+
     comp = SRComp(os.path.realpath(settings.compstate))
 
     generator = ScheduleGenerator(settings.output,
