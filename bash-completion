@@ -7,7 +7,7 @@ _srcomp_completion()
 	# We only complete the command name
 	if (( $COMP_CWORD > 1 ))
 	then
-		COMPREPLY=( $(compgen -f ${cur}) )
+		COMPREPLY=( $(compgen -f -- ${cur}) )
 		return 0
 	fi
 
