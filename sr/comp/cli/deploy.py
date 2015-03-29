@@ -2,10 +2,8 @@ from __future__ import print_function
 
 from contextlib import contextmanager
 import simplejson as json
-import os.path
 from paramiko import AutoAddPolicy, SSHClient
 from six.moves.urllib.request import urlopen
-import yaml
 
 from sr.comp.raw_compstate import RawCompstate
 from sr.comp.validation import validate
@@ -119,18 +117,9 @@ def deploy_to(compstate, host, revision, verbose):
 
         return retcode
 
-def get_deployments(compstate_path):
-    deployments_name = 'deployments.yaml'
-    deployments_path = os.path.join(compstate_path, deployments_name)
-    if not os.path.exists(deployments_path):
-        print_fail("Cannot deploy state without a {0}.".format(deployments_name))
-        exit(1)
-
-    with open(deployments_path, 'r') as dp:
-        raw_deployments = yaml.load(dp)
-    hosts = raw_deployments['deployments']
-
-    return hosts
+def get_deployments(compstate):
+    with exit_on_exception("Failed to get deployments from state ({0})."):
+        return compstate.deployments
 
 def get_current_state(host):
     url = "http://{0}/comp-api/state".format(host)
@@ -235,8 +224,8 @@ def run_deployments(args, compstate, hosts):
     print(BOLD + OKBLUE + "Done" + ENDC)
 
 def command(args):
-    hosts = get_deployments(args.compstate)
     compstate = RawCompstate(args.compstate, local_only=False)
+    hosts = get_deployments(compstate)
 
     require_no_changes(compstate)
     require_valid(compstate)
