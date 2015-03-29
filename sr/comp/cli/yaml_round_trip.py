@@ -1,16 +1,21 @@
 from __future__ import print_function
 
-import ruamel.yaml as ryaml
-
-from sr.comp.yaml_loader import add_time_constructor
-
-add_time_constructor(ryaml.RoundTripLoader)
+_ryaml = None
+def _load():
+    global _ryaml
+    if _ryaml is None:
+        import ruamel.yaml as _ryaml
+        from sr.comp.yaml_loader import add_time_constructor
+        add_time_constructor(_ryaml.RoundTripLoader)
+    return _ryaml
 
 def load(yaml_file):
+    ryaml = _load()
     with open(yaml_file, 'r') as yf:
         return ryaml.load(yf, ryaml.RoundTripLoader)
 
 def dump(yaml_file, data):
+    ryaml = _load()
     yaml = ryaml.dump(data, Dumper=ryaml.RoundTripDumper)
     yaml = "\n".join(l.rstrip() for l in yaml.splitlines())
     with open(yaml_file, 'w') as yf:
