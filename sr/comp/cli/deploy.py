@@ -1,10 +1,10 @@
 from __future__ import print_function
 
 from contextlib import contextmanager
-import json
+import simplejson as json
 import os.path
 from paramiko import AutoAddPolicy, SSHClient
-import urllib2
+from six.moves.urllib.request import urlopen
 import yaml
 
 from sr.comp.raw_compstate import RawCompstate
@@ -135,7 +135,7 @@ def get_deployments(compstate_path):
 def get_current_state(host):
     url = "http://{0}/comp-api/state".format(host)
     try:
-        page = urllib2.urlopen(url, timeout = API_TIMEOUT_SECONDS)
+        page = urlopen(url, timeout = API_TIMEOUT_SECONDS)
         raw_state = json.load(page)
     except Exception as e:
         print(e)
