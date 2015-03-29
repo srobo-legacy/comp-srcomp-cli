@@ -137,7 +137,8 @@ def get_current_state(host):
     try:
         page = urllib2.urlopen(url, timeout = API_TIMEOUT_SECONDS)
         raw_state = json.load(page)
-    except:
+    except Exception as e:
+        print(e)
         return None
     else:
         return raw_state['state']
