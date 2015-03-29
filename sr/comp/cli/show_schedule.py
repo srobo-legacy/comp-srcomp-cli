@@ -10,7 +10,6 @@ def command(settings):
     from datetime import datetime, timedelta
 
     from sr.comp.comp import SRComp
-    from sr.comp.winners import Award
 
     comp = SRComp(os.path.realpath(settings.compstate))
 
