@@ -231,7 +231,7 @@ def run_deployments(args, compstate, hosts):
             print_fail("Failed to deploy to '{0}' (exit status: {1}).".format(host, retcode))
             exit(retcode)
 
-    print(BOLD + OKBLUE + "Success" + ENDC)
+    print(BOLD + OKBLUE + "Done" + ENDC)
 
 def command(args):
     hosts = get_deployments(args.compstate)
