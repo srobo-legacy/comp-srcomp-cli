@@ -14,6 +14,7 @@ from . import knocked_out_teams
 from . import print_schedule
 from . import schedule_league
 from . import scorer
+from . import show_schedule
 from . import update
 from . import validate
 from . import yaml_round_trip
@@ -44,6 +45,7 @@ def argument_parser():
     print_schedule.add_subparser(subparsers)
     schedule_league.add_subparser(subparsers)
     scorer.add_subparser(subparsers)
+    show_schedule.add_subparser(subparsers)
     update.add_subparser(subparsers)
     validate.add_subparser(subparsers)
     yaml_round_trip.add_subparser(subparsers)
