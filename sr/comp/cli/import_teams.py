@@ -5,7 +5,7 @@ def format_team(entry):
     else:
         name = entry['college']['name']
     rookie = False  # Temporary
-    return {'name': name,
+    return {'name': str(name),
             'rookie': rookie}
 
 
@@ -46,7 +46,7 @@ def command(settings):
 
     # write out teams.yaml file
     with open(teams_yaml, 'w') as f:
-        yaml.dump({'teams': {tla: format_team(team)
+        yaml.dump({'teams': {str(tla): format_team(team)
                                for tla, team in team_data.items()}},
                   f, default_flow_style=False)
 
