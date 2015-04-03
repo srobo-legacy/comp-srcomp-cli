@@ -9,6 +9,7 @@ from . import add_delay
 from . import awards
 from . import delay
 from . import deploy
+from . import import_schedule
 from . import import_teams
 from . import knocked_out_teams
 from . import print_schedule
@@ -39,6 +40,7 @@ def argument_parser():
     awards.add_subparser(subparsers)
     delay.add_subparser(subparsers)
     deploy.add_subparser(subparsers)
+    import_schedule.add_subparser(subparsers)
     import_teams.add_subparser(subparsers)
     knocked_out_teams.add_subparser(subparsers)
     print_schedule.add_subparser(subparsers)
