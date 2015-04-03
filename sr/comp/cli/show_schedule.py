@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 MAX_MATCHES = 15
+DISPLAY_NAME_WIDTH = 18
 
 def first(iterable):
     return next(i for i in iterable)
@@ -38,7 +39,7 @@ def command(settings):
     print_col(' Num Time  ')
     map(print_col, (a.display_name.center(teams_len)
                     for a in comp.arenas.values()))
-    print_col('Display'.center(15))
+    print_col('Display'.center(DISPLAY_NAME_WIDTH))
     print()
 
     arena_ids = comp.arenas.keys()
@@ -52,7 +53,7 @@ def command(settings):
             else:
                 print_col(empty_teams)
 
-        print_col(m.display_name.center(15))
+        print_col(m.display_name.center(DISPLAY_NAME_WIDTH))
 
         if m in current_matches:
             print(' *')
