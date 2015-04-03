@@ -39,7 +39,7 @@ def command(settings):
     print_col(' Num Time  ')
     map(print_col, (a.display_name.center(teams_len)
                     for a in comp.arenas.values()))
-    print_col('Display'.center(DISPLAY_NAME_WIDTH))
+    print_col('Display Name'.center(DISPLAY_NAME_WIDTH))
     print()
 
     arena_ids = comp.arenas.keys()
