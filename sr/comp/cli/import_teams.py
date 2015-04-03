@@ -41,7 +41,9 @@ def command(settings):
     import yaml
 
     teams_yaml = os.path.join(settings.compstate, 'teams.yaml')
-    target = urljoin(settings.server, 'teams-data.php')
+    # Append slash so urljoin doesn't convert foo.com/srweb into foo.com
+    server_url = settings.server + '/'
+    target = urljoin(server_url, 'teams-data.php')
     team_data = requests.get(target).json()
 
     # write out teams.yaml file
@@ -51,12 +53,12 @@ def command(settings):
                   f, default_flow_style=False)
 
     # download and save team images
-    download_team_images(settings.server, team_data, settings.compstate)
+    download_team_images(server_url, team_data, settings.compstate)
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser('import-teams',
                                    help='import a teams.yaml from an SR server')
     parser.add_argument('compstate', help='competition state repository')
     parser.add_argument('-s', '--server', help='srweb instance',
-                        default='https://www.studentrobotics.org/')
+                        default='https://www.studentrobotics.org')
     parser.set_defaults(func=command)
