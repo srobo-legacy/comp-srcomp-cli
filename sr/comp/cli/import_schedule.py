@@ -119,8 +119,8 @@ def command(args):
 
     # Semi-randomise
     random = Random()
-    random.seed("".join(ids))
-    random.shuffle(ids)
+    random.seed("".join(team_ids))
+    random.shuffle(team_ids)
 
     # Get matches
     matches = build_matches(ids, schedule, team_ids, arena_ids)
