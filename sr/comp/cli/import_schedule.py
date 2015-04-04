@@ -114,8 +114,8 @@ def command(args):
     # Sanity checks
     num_ids = len(ids)
     num_teams = len(team_ids)
-    assert num_ids > num_teams, "Not enough places in the schedule " \
-                                "(need {0}, got {1}).".format(num_ids, num_teams)
+    assert num_ids >= num_teams, "Not enough places in the schedule " \
+                                 "(need {0}, got {1}).".format(num_ids, num_teams)
 
     # Semi-randomise
     random = Random()
