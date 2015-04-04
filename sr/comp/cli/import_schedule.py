@@ -77,8 +77,7 @@ def ignore_ids(ids, ids_to_remove):
     for i in ids_to_remove:
         ids.remove(i)
 
-def build_matches(ids, schedule, team_ids, arena_ids):
-    id_team_map = dict(zip(ids, team_ids))
+def build_matches(id_team_map, schedule, arena_ids):
     num_arenas = len(arena_ids)
 
     matches = {}
@@ -131,7 +130,8 @@ def command(args):
     random.shuffle(team_ids)
 
     # Get matches
-    matches = build_matches(ids, schedule, team_ids, arena_ids)
+    id_team_map = dict(zip(ids, team_ids))
+    matches = build_matches(id_team_map, schedule, arena_ids)
 
     league_yaml = league_yaml_path(args.compstate)
     dump_league_yaml(matches, league_yaml)
