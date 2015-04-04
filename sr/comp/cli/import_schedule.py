@@ -73,6 +73,10 @@ def load_ids_schedule(schedule_lines):
 
     return ids, schedule
 
+def ignore_ids(ids, ids_to_remove):
+    for i in ids_to_remove:
+        ids.remove(i)
+
 def build_matches(ids, schedule, team_ids, arena_ids):
     id_team_map = dict(zip(ids, team_ids))
     num_arenas = len(arena_ids)
@@ -107,6 +111,10 @@ def command(args):
 
     # Collect up the ids used
     ids, schedule = load_ids_schedule(schedule_lines)
+
+    # Ignore any ids we've been told to
+    if args.ignore_ids:
+        ignore_ids(ids, args.ignore_ids.split(','))
 
     # Grab the teams and arenas
     team_ids, arena_ids = load_teams_areans(args.compstate)
@@ -151,6 +159,7 @@ result hash characters may be used to start line comments.
                                    help='Import a league.yaml file from a schedule file',
                                    description=description,
                                    formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('-i', '--ignore-ids', help='comma separated list of ids to ignore')
     parser.add_argument('compstate', help='competition state repository')
     parser.add_argument('schedule', help='schedule to import')
     parser.set_defaults(func=command)
