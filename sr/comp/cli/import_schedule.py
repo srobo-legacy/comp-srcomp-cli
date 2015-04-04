@@ -78,9 +78,13 @@ def ignore_ids(ids, ids_to_remove):
         ids.remove(i)
 
 def build_matches(id_team_map, schedule, arena_ids):
+    from collections import namedtuple
+    BadMatch = namedtuple('BadMatch', ['arena', 'num', 'num_teams'])
+
     num_arenas = len(arena_ids)
 
     matches = {}
+    bad_matches = []
     for match_num, match_ids in enumerate(schedule):
         assert len(match_ids) / TEAMS_PER_GAME <= num_arenas, \
             "Match {0} has too many ids".format(match_num)
@@ -96,10 +100,9 @@ def build_matches(id_team_map, schedule, arena_ids):
         for arena, teams in match.items():
             num_teams = len(set(teams) - set([None]))
             if num_teams <= 2:
-                tpl = "Warning: match {0}:{1} only has {2} teams."
-                print(tpl.format(arena, match_num, num_teams))
+                bad_matches.append(BadMatch(arena, match_num, num_teams))
 
-    return matches
+    return matches, bad_matches
 
 
 def command(args):
@@ -131,7 +134,10 @@ def command(args):
 
     # Get matches
     id_team_map = dict(zip(ids, team_ids))
-    matches = build_matches(id_team_map, schedule, arena_ids)
+    matches, bad_matches = build_matches(id_team_map, schedule, arena_ids)
+    for bad_match in bad_matches:
+        tpl = "Warning: match {arena}:{num} only has {num_teams} teams."
+        print(tpl.format(**bad_match._asdict()))
 
     league_yaml = league_yaml_path(args.compstate)
     dump_league_yaml(matches, league_yaml)
