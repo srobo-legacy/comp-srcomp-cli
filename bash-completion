@@ -1,4 +1,15 @@
 
+_ensure_srcomp_opts()
+{
+	local now
+	now=`date +%s`
+	if test -z "$_SRCOMP_OPTS" || test $now -gt `expr $_SRCOMP_WHEN + 30`
+	then
+		_SRCOMP_OPTS=`srcomp list-commands`
+		_SRCOMP_WHEN=$now
+	fi
+}
+
 _srcomp_completion()
 {
 	local cur
@@ -11,8 +22,11 @@ _srcomp_completion()
 		return 0
 	fi
 
-	COMPREPLY=( $(compgen -W "`srcomp list-commands`" -- ${cur}) )
+	_ensure_srcomp_opts
+	COMPREPLY=( $(compgen -W "$_SRCOMP_OPTS" -- ${cur}) )
 	return 0
 }
+
+_SRCOMP_OPTS=
 
 complete -o filenames -F _srcomp_completion srcomp
