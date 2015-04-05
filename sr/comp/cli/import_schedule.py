@@ -77,6 +77,48 @@ def ignore_ids(ids, ids_to_remove):
     for i in ids_to_remove:
         ids.remove(i)
 
+def get_id_subsets(ids, limit):
+    num_ids = len(ids)
+
+    extra = num_ids - limit
+
+    if extra == 0:
+        # Only one posibility -- use all of them
+        yield ids
+
+    elif extra == 1:
+        for idx in range(len(ids)):
+            ids_clone = ids[:]
+            ids_clone.pop(idx)
+            yield ids_clone
+
+    elif extra == 2:
+        for idx1 in range(len(ids)):
+            for idx2 in range(idx1+1, len(ids)):
+                ids_clone = ids[:]
+                ids_clone.pop(idx2)
+                ids_clone.pop(idx1)
+                yield ids_clone
+
+    else:
+        # TODO: generalise the above or add more handling -- currently assumes
+        # TEAMS_PER_GAME is 4 and that we don't want matches with only one player
+        raise Exception("Too many empty slots to compensate for ({0}).".format(extra))
+
+def build_id_team_maps(ids, team_ids):
+    # If there are more ids than team_ids we want to ensure that we minimize
+    # the number of matches which have empty places and also the number of
+    # empty places in any given match.
+    # This function generates possible mappings of ids to teams as needed
+    # in order to explore excluding different ids.
+    #
+    # Note: this function does _not_ explore mapping the same subset of
+    # ids to the given teams since that doesn't achieve any changes in
+    # which matches have empty spaces.
+
+    for id_subset in get_id_subsets(ids, len(team_ids)):
+        yield dict(zip(id_subset, team_ids))
+
 def build_matches(id_team_map, schedule, arena_ids):
     from collections import namedtuple
     BadMatch = namedtuple('BadMatch', ['arena', 'num', 'num_teams'])
@@ -103,6 +145,44 @@ def build_matches(id_team_map, schedule, arena_ids):
                 bad_matches.append(BadMatch(arena, match_num, num_teams))
 
     return matches, bad_matches
+
+def are_better_matches(best, new):
+    from collections import Counter
+    def get_empty_places_map(bad_matches):
+        empty_places_map = Counter()
+        for bad_match in bad_matches:
+            num_empty = TEAMS_PER_GAME - bad_match.num_teams
+            empty_places_map[num_empty] += 1
+        return empty_places_map
+
+    best_map = get_empty_places_map(best)
+    new_map  = get_empty_places_map(new)
+
+    possible_empty_places = set(list(best_map.keys()) + list(new_map.keys()))
+
+    # Even single matches with lots of empty slots are bad
+    for num_empty_places in sorted(possible_empty_places, reverse=True):
+        if new_map[num_empty_places] < best_map[num_empty_places]:
+            return True
+
+    return False
+
+
+def get_best_fit(ids, team_ids, schedule, arena_ids):
+    best = None
+    for id_team_map in build_id_team_maps(ids, team_ids):
+        matches, bad_matches = build_matches(id_team_map, schedule, arena_ids)
+
+        if len(bad_matches) == 0:
+            # Nothing bad about these, ship them
+            return matches, bad_matches
+
+        if best is None or are_better_matches(best[1], bad_matches):
+            best = (matches, bad_matches)
+
+    assert best is not None
+
+    return best
 
 
 def command(args):
@@ -133,12 +213,14 @@ def command(args):
     random.shuffle(team_ids)
 
     # Get matches
-    id_team_map = dict(zip(ids, team_ids))
-    matches, bad_matches = build_matches(id_team_map, schedule, arena_ids)
+    matches, bad_matches = get_best_fit(ids, team_ids, schedule, arena_ids)
+
+    # Print any warnings about the matches
     for bad_match in bad_matches:
         tpl = "Warning: match {arena}:{num} only has {num_teams} teams."
         print(tpl.format(**bad_match._asdict()))
 
+    # Save the matches to the file
     league_yaml = league_yaml_path(args.compstate)
     dump_league_yaml(matches, league_yaml)
 
