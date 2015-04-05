@@ -18,7 +18,8 @@ def command(args):
     print("Number of arenas:", len(comp.arenas), \
             "({0})".format(", ".join(comp.arenas.keys())))
 
-    print("Number of teams:", len(comp.teams))
+    print("Number of teams:", len(comp.teams),
+            "({0} rookies)".format(sum(1 for t in comp.teams.values() if t.rookie)))
 
     slots_by_type = Counter(first(slot.values()).type.value \
                                 for slot in comp.schedule.matches)
