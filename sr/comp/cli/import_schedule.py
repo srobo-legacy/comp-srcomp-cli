@@ -100,9 +100,18 @@ def get_id_subsets(ids, limit):
                 ids_clone.pop(idx1)
                 yield ids_clone
 
+    elif extra == 3:
+        for idx1 in range(len(ids)):
+            for idx2 in range(idx1+1, len(ids)):
+                for idx3 in range(idx2+1, len(ids)):
+                    ids_clone = ids[:]
+                    ids_clone.pop(idx3)
+                    ids_clone.pop(idx2)
+                    ids_clone.pop(idx1)
+                    yield ids_clone
+
     else:
-        # TODO: generalise the above or add more handling -- currently assumes
-        # TEAMS_PER_GAME is 4 and that we don't want matches with only one player
+        # TODO: consider generalising the above or adding more handling
         raise Exception("Too many empty slots to compensate for ({0}).".format(extra))
 
 def build_id_team_maps(ids, team_ids):
