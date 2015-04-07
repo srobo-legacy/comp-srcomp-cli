@@ -62,7 +62,24 @@ class ScheduleGenerator(object):
                          self.width-(self.margin*0.7), self.row_height - 3.5)
         self.row_height -= 12
 
-    def generate(self, competition, highlight=()):
+    def filter_matches(self, competition, period=None):
+        matches = []
+
+        for slot in competition.schedule.matches:
+            if period is None:
+                matches.append(slot)
+            else:
+                first_arena = next(iter(self.arenas))
+                match = slot.get(first_arena)
+                if match:
+                    time = match.start_time
+                    current_period = competition.schedule.period_at(time)
+                    if current_period.type.name == period:
+                        matches.append(slot)
+
+        return matches
+
+    def generate(self, competition, period=None, highlight=()):
         def display(team):
             if team is None:
                 return '–'
@@ -71,7 +88,8 @@ class ScheduleGenerator(object):
             else:
                 return team
 
-        for n, match in enumerate(competition.schedule.matches):
+        matches = self.filter_matches(competition, period)
+        for n, match in enumerate(matches):
             cells = ['', '']
             for arena in self.arenas:
                 match_arena = match.get(arena)
@@ -90,6 +108,7 @@ class ScheduleGenerator(object):
     def write(self):
         self.canvas.save()
 
+
 def command(settings):
     import os.path
 
@@ -97,12 +116,13 @@ def command(settings):
 
     comp = SRComp(os.path.realpath(settings.compstate))
 
-    generator = ScheduleGenerator(settings.output,
-                                  arenas=comp.arenas,
+    generator = ScheduleGenerator(settings.output, arenas=comp.arenas,
                                   state=comp.state)
-    generator.generate(comp,
-                       highlight=settings.highlight if settings.highlight is not None else ())
+
+    highlight = settings.highlight if settings.highlight else ()
+    generator.generate(comp, period=settings.period, highlight=highlight)
     generator.write()
+
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser('print-schedule',
@@ -111,6 +131,7 @@ def add_subparser(subparsers):
     parser.add_argument('-o', '--output', help='output file',
                         type=argparse.FileType('wb'),
                         required=True)
+    parser.add_argument('-p', '--period', help='print a specific period')
     parser.add_argument('-H', '--highlight', help='highlight specific team\'s matches',
                         nargs='+')
     parser.set_defaults(func=command)
