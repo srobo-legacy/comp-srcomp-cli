@@ -3,6 +3,7 @@ from __future__ import print_function
 from sr.comp.cli import add_delay
 from sr.comp.cli import deploy
 
+
 def command(args):
     from sr.comp.raw_compstate import RawCompstate
 
@@ -31,6 +32,7 @@ def command(args):
         compstate.commit(msg)
 
     deploy.run_deployments(args, compstate, hosts)
+
 
 def add_subparser(subparsers):
     help_msg = 'Add and deploy a delay to the competition'

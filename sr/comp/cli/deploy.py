@@ -4,6 +4,7 @@ from contextlib import contextmanager
 
 
 API_TIMEOUT_SECONDS = 3
+SSH_TIMEOUT_SECONDS = 2
 DEPLOY_USER = 'srcomp'
 BOLD = '\033[1m'
 FAIL = '\033[91m'
@@ -24,7 +25,7 @@ def ssh_connection(host):
     client = SSHClient()
     client.load_system_host_keys()
     client.set_missing_host_key_policy(AutoAddPolicy())
-    client.connect(host, username = DEPLOY_USER)
+    client.connect(host, username=DEPLOY_USER, timeout=SSH_TIMEOUT_SECONDS)
     return client
 
 
