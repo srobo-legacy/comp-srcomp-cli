@@ -79,9 +79,19 @@ class ScheduleGenerator(object):
                          self.width-(self.margin*0.5), self.row_height - 3.5)
         self.row_height -= 14
 
-    def _generate(self, competition, shepherds=None):
-        current_period = None
+    @staticmethod
+    def _get_periods(competition, numbers=None):
+        comp_periods = competition.schedule.match_periods
+        if numbers is None:
+            return comp_periods
 
+        periods = []
+        for n in numbers:
+            periods.append(comp_periods[n])
+
+        return periods
+
+    def _generate(self, competition, period_numbers=None, shepherds=None):
         def find_shepherd_number(team):
             if shepherds is None:
                 return None
@@ -96,48 +106,45 @@ class ScheduleGenerator(object):
                 for team in shepherd['teams']:
                     team_colours[team] = shepherd['colour']
 
-        for n, slot in enumerate(competition.schedule.matches):
-            first_match = next(iter(slot.values()))
-            period = competition.schedule.period_at(first_match.start_time)
-            if period != current_period:
-                current_period = period
-                self.start_page(str(period))
-                n = 0
+        periods = self._get_periods(competition, period_numbers)
+        for period in periods:
+            self.start_page(str(period))
 
-            shepherd_counts = defaultdict(int)
-            for match in slot.values():
-                for team in match.teams:
-                    num = find_shepherd_number(team)
-                    if num is not None:
-                        shepherd_counts[num] += 1
-
-            cells = ['', '']
-            for arena in self.arenas:
-                match = slot.get(arena)
-                if match is not None:
+            for n, slot in enumerate(period.matches):
+                shepherd_counts = defaultdict(int)
+                for match in slot.values():
                     for team in match.teams:
-                        colour = team_colours.get(team, '#000000')
-                        bold = shepherd_counts.get(find_shepherd_number(team), 0) >= 4
-                        cells.append((team if team else '–', colour, bold))
-                    cells[0] = str(match.num)
-                    cells[1] = str(match.start_time.strftime('%H:%M'))
-                else:
-                    cells += ['–', '–', '–', '–']
-            self.add_line(cells)
+                        num = find_shepherd_number(team)
+                        if num is not None:
+                            shepherd_counts[num] += 1
 
-            if n % 65 == 65:
-                self.start_page(str(current_period))
+                cells = ['', '']
+                for arena in self.arenas:
+                    match = slot.get(arena)
+                    if match is not None:
+                        for team in match.teams:
+                            colour = team_colours.get(team, '#000000')
+                            bold = shepherd_counts.get(find_shepherd_number(team), 0) >= 4
+                            cells.append((team if team else '–', colour, bold))
+                        cells[0] = str(match.num)
+                        cells[1] = str(match.start_time.strftime('%H:%M'))
+                    else:
+                        cells += ['–', '–', '–', '–']
+                self.add_line(cells)
 
-    def generate(self, competition, shepherds=None):
+                if n % 65 == 65:
+                    self.start_page('')
+
+    def generate(self, competition, period_numbers=None, shepherds=None):
         if shepherds is None:
-            self._generate(competition)
+            self._generate(competition, period_numbers)
         else:
-            self._generate(competition, None)
+            self._generate(competition, period_numbers, None)
 
             for shepherd in shepherds:
-                self._generate(competition, [shepherd])
+                self._generate(competition, period_numbers, [shepherd])
 
-            self._generate(competition, shepherds)
+            self._generate(competition, period_numbers, shepherds)
 
     def write(self):
         self.canvas.save()
@@ -159,7 +166,7 @@ def command(settings):
     else:
         shepherds = None
 
-    generator.generate(comp, shepherds=shepherds)
+    generator.generate(comp, settings.periods, shepherds)
     generator.write()
 
 
@@ -171,4 +178,6 @@ def add_subparser(subparsers):
                         type=argparse.FileType('wb'), required=True)
     parser.add_argument('-s', '--shepherds', help='shepherds file',
                         type=argparse.FileType('r'))
+    parser.add_argument('-p', '--periods', type=int, nargs='+',
+                        help='specify periods by number')
     parser.set_defaults(func=command)
