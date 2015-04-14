@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import argparse
+from collections import defaultdict
+
 import yaml
 
 
@@ -42,23 +44,32 @@ class ScheduleGenerator(object):
             self.canvas.line(x, 30, x, 810)
 
     def draw_column_headings(self):
-        headings = ['**Number**', '**Time**']
+        headings = [('Number', 'black', True), ('Time', 'black', True)]
         for arena in self.arenas.values():
-            headings += ['**{}**'.format(arena.display_name), '', '', '']
+            headings += [('{}'.format(arena.display_name), 'black', True),
+                         '', '', '']
         self.add_line(headings)
 
     def add_line(self, line):
         if len(line) != self.columns:
             raise ValueError("Incorrect column count")
         for i, cell in enumerate(line):
-            self.canvas.setFont("Helvetica", 10)
-
             if isinstance(cell, tuple):
                 text = cell[0]
                 colour = cell[1]
+                try:
+                    bold = cell[2]
+                except IndexError:
+                    bold = False
             else:
                 text = cell
                 colour = '#000000'
+                bold = False
+
+            if bold:
+                self.canvas.setFont('Helvetica-Bold', 11)
+            else:
+                self.canvas.setFont('Helvetica', 10)
 
             self.canvas.setFillColor(colour)
             self.canvas.drawCentredString(self.margin + i * (self.width - 2*self.margin) / (self.columns - 1),
@@ -70,6 +81,14 @@ class ScheduleGenerator(object):
 
     def _generate(self, competition, shepherds=None):
         current_period = None
+
+        def find_shepherd_number(team):
+            if shepherds is None:
+                return None
+            for i, shepherd in enumerate(shepherds):
+                if team in shepherd['teams']:
+                    return i
+            return None
 
         team_colours = {}
         if shepherds:
@@ -85,13 +104,21 @@ class ScheduleGenerator(object):
                 self.start_page(str(period))
                 n = 0
 
+            shepherd_counts = defaultdict(int)
+            for match in slot.values():
+                for team in match.teams:
+                    num = find_shepherd_number(team)
+                    if num is not None:
+                        shepherd_counts[num] += 1
+
             cells = ['', '']
             for arena in self.arenas:
                 match = slot.get(arena)
                 if match is not None:
                     for team in match.teams:
                         colour = team_colours.get(team, '#000000')
-                        cells.append((team if team else '–', colour))
+                        bold = shepherd_counts.get(find_shepherd_number(team), 0) >= 4
+                        cells.append((team if team else '–', colour, bold))
                     cells[0] = str(match.num)
                     cells[1] = str(match.start_time.strftime('%H:%M'))
                 else:
