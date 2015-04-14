@@ -61,15 +61,7 @@ class ScheduleGenerator(object):
                          self.width-(self.margin*0.5), self.row_height - 3.5)
         self.row_height -= 14
 
-    def generate(self, competition, highlight=()):
-        def display(team):
-            if team is None:
-                return '–'
-            if team in highlight:
-                return '**' + team + '**'
-            else:
-                return team
-
+    def generate(self, competition):
         current_period = None
 
         for n, slot in enumerate(competition.schedule.matches):
@@ -84,7 +76,7 @@ class ScheduleGenerator(object):
             for arena in self.arenas:
                 match = slot.get(arena)
                 if match is not None:
-                    cells += [display(team) for team in match.teams]
+                    cells += [team if team else '–' for team in match.teams]
                     cells[0] = str(match.num)
                     cells[1] = str(match.start_time.strftime('%H:%M'))
                 else:
@@ -111,8 +103,7 @@ def command(settings):
     generator = ScheduleGenerator(settings.output, arenas=comp.arenas,
                                   state=comp.state)
 
-    highlight = settings.highlight if settings.highlight else ()
-    generator.generate(comp, highlight=highlight)
+    generator.generate(comp)
     generator.write()
 
 
@@ -122,6 +113,4 @@ def add_subparser(subparsers):
     parser.add_argument('compstate', help='competition state repository')
     parser.add_argument('-o', '--output', help='output file',
                         type=argparse.FileType('wb'), required=True)
-    parser.add_argument('-H', '--highlight', nargs='+',
-                        help="highlight specific team's matches")
     parser.set_defaults(func=command)
