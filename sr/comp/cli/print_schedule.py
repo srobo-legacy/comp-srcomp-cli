@@ -14,22 +14,21 @@ class ScheduleGenerator(object):
         self.page_number = 0
         self.arenas = arenas
         self.columns = 2 + 4*len(arenas)
-        self.start_page()
 
-    def start_page(self):
+    def start_page(self, title='Match Schedule'):
         self.row_height = 815
         if self.page_number != 0:
             self.canvas.showPage()
         self.page_number += 1
 
-        self.draw_header()
+        self.draw_header(title)
         self.draw_footer()
         self.draw_vertical_bars()
         self.draw_column_headings()
 
-    def draw_header(self):
+    def draw_header(self, text):
         self.canvas.setFont("Helvetica", 12)
-        self.canvas.drawCentredString(self.width*0.5, 825, "Match Schedule")
+        self.canvas.drawCentredString(self.width * 0.5, 825, text)
 
     def draw_footer(self):
         self.canvas.setFont("Helvetica", 8)
@@ -62,24 +61,7 @@ class ScheduleGenerator(object):
                          self.width-(self.margin*0.7), self.row_height - 3.5)
         self.row_height -= 12
 
-    def filter_matches(self, competition, period=None):
-        matches = []
-
-        for slot in competition.schedule.matches:
-            if period is None:
-                matches.append(slot)
-            else:
-                first_arena = next(iter(self.arenas))
-                match = slot.get(first_arena)
-                if match:
-                    time = match.start_time
-                    current_period = competition.schedule.period_at(time)
-                    if current_period.type.name == period:
-                        matches.append(slot)
-
-        return matches
-
-    def generate(self, competition, period=None, highlight=()):
+    def generate(self, competition, highlight=()):
         def display(team):
             if team is None:
                 return '–'
@@ -88,8 +70,9 @@ class ScheduleGenerator(object):
             else:
                 return team
 
-        matches = self.filter_matches(competition, period)
-        for n, match in enumerate(matches):
+        self.start_page()
+
+        for n, match in enumerate(competition.schedule.matches):
             cells = ['', '']
             for arena in self.arenas:
                 match_arena = match.get(arena)
@@ -121,7 +104,7 @@ def command(settings):
                                   state=comp.state)
 
     highlight = settings.highlight if settings.highlight else ()
-    generator.generate(comp, period=settings.period, highlight=highlight)
+    generator.generate(comp, highlight=highlight)
     generator.write()
 
 
@@ -131,7 +114,6 @@ def add_subparser(subparsers):
     parser.add_argument('compstate', help='competition state repository')
     parser.add_argument('-o', '--output', help='output file',
                         type=argparse.FileType('wb'), required=True)
-    parser.add_argument('-p', '--period', help='print a specific period')
     parser.add_argument('-H', '--highlight', nargs='+',
                         help="highlight specific team's matches")
     parser.set_defaults(func=command)
