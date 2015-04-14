@@ -16,7 +16,7 @@ class ScheduleGenerator(object):
         self.columns = 2 + 4*len(arenas)
 
     def start_page(self, title='Match Schedule'):
-        self.row_height = 815
+        self.row_height = 800
         if self.page_number != 0:
             self.canvas.showPage()
         self.page_number += 1
@@ -27,8 +27,8 @@ class ScheduleGenerator(object):
         self.draw_column_headings()
 
     def draw_header(self, text):
-        self.canvas.setFont("Helvetica", 12)
-        self.canvas.drawCentredString(self.width * 0.5, 825, text)
+        self.canvas.setFont('Helvetica', 12)
+        self.canvas.drawCentredString(self.width * 0.5, 820, text)
 
     def draw_footer(self):
         self.canvas.setFont("Helvetica", 8)
@@ -38,7 +38,7 @@ class ScheduleGenerator(object):
 
     def draw_vertical_bars(self):
         for x in (140, 368):
-            self.canvas.line(x, 20, x, 825)
+            self.canvas.line(x, 30, x, 810)
 
     def draw_column_headings(self):
         headings = ['**Number**', '**Time**']
@@ -52,14 +52,14 @@ class ScheduleGenerator(object):
         for i, cell in enumerate(line):
             if cell.startswith('**') and cell.endswith('**'):
                 cell = cell[2:-2]
-                self.canvas.setFont("Helvetica-Bold", 10)
+                self.canvas.setFont("Helvetica-Bold", 12)
             else:
-                self.canvas.setFont("Helvetica", 9)
+                self.canvas.setFont("Helvetica", 10)
             self.canvas.drawCentredString(self.margin + i * (self.width - 2*self.margin) / (self.columns - 1),
                                           self.row_height, cell)
         self.canvas.line(self.margin*0.7, self.row_height - 3.5,
                          self.width-(self.margin*0.7), self.row_height - 3.5)
-        self.row_height -= 12
+        self.row_height -= 14
 
     def generate(self, competition, highlight=()):
         def display(team):
@@ -93,7 +93,7 @@ class ScheduleGenerator(object):
                 cells[0] = '**' + cells[0] + '**'
             self.add_line(cells)
 
-            if n % 66 == 65:
+            if n % 45 == 65:
                 self.start_page(str(current_period))
 
     def write(self):
