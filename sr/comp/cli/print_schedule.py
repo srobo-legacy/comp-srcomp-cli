@@ -51,19 +51,31 @@ class ScheduleGenerator(object):
         if len(line) != self.columns:
             raise ValueError("Incorrect column count")
         for i, cell in enumerate(line):
-            if cell.startswith('**') and cell.endswith('**'):
-                cell = cell[2:-2]
-                self.canvas.setFont("Helvetica-Bold", 12)
+            self.canvas.setFont("Helvetica", 10)
+
+            if isinstance(cell, tuple):
+                text = cell[0]
+                colour = cell[1]
             else:
-                self.canvas.setFont("Helvetica", 10)
+                text = cell
+                colour = '#000000'
+
+            self.canvas.setFillColor(colour)
             self.canvas.drawCentredString(self.margin + i * (self.width - 2*self.margin) / (self.columns - 1),
-                                          self.row_height, cell)
+                                          self.row_height, text)
+            self.canvas.setFillColor('black')
         self.canvas.line(self.margin*0.5, self.row_height - 3.5,
                          self.width-(self.margin*0.5), self.row_height - 3.5)
         self.row_height -= 14
 
     def _generate(self, competition, shepherds=None):
         current_period = None
+
+        team_colours = {}
+        if shepherds:
+            for shepherd in shepherds:
+                for team in shepherd['teams']:
+                    team_colours[team] = shepherd['colour']
 
         for n, slot in enumerate(competition.schedule.matches):
             first_match = next(iter(slot.values()))
@@ -77,13 +89,13 @@ class ScheduleGenerator(object):
             for arena in self.arenas:
                 match = slot.get(arena)
                 if match is not None:
-                    cells += [team if team else '–' for team in match.teams]
+                    for team in match.teams:
+                        colour = team_colours.get(team, '#000000')
+                        cells.append((team if team else '–', colour))
                     cells[0] = str(match.num)
                     cells[1] = str(match.start_time.strftime('%H:%M'))
                 else:
                     cells += ['–', '–', '–', '–']
-            if any(x.startswith('**') for x in cells):
-                cells[0] = '**' + cells[0] + '**'
             self.add_line(cells)
 
             if n % 65 == 65:
