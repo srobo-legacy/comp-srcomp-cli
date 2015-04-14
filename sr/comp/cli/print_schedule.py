@@ -70,23 +70,31 @@ class ScheduleGenerator(object):
             else:
                 return team
 
-        self.start_page()
+        current_period = None
 
-        for n, match in enumerate(competition.schedule.matches):
+        for n, slot in enumerate(competition.schedule.matches):
+            first_match = next(iter(slot.values()))
+            period = competition.schedule.period_at(first_match.start_time)
+            if period != current_period:
+                current_period = period
+                self.start_page(period.description)
+                n = 0
+
             cells = ['', '']
             for arena in self.arenas:
-                match_arena = match.get(arena)
-                if match_arena is not None:
-                    cells += [display(team) for team in match_arena.teams]
-                    cells[0] = str(match_arena.num)
-                    cells[1] = str(match_arena.start_time.strftime('%a %H:%M'))
+                match = slot.get(arena)
+                if match is not None:
+                    cells += [display(team) for team in match.teams]
+                    cells[0] = str(match.num)
+                    cells[1] = str(match.start_time.strftime('%a %H:%M'))
                 else:
                     cells += ['–', '–', '–', '–']
             if any(x.startswith('**') for x in cells):
                 cells[0] = '**' + cells[0] + '**'
             self.add_line(cells)
+
             if n % 66 == 65:
-                self.start_page()
+                self.start_page(current_period.description)
 
     def write(self):
         self.canvas.save()
