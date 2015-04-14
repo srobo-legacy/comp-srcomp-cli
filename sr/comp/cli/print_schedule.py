@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import argparse
+import yaml
 
 
 class ScheduleGenerator(object):
@@ -61,7 +62,7 @@ class ScheduleGenerator(object):
                          self.width-(self.margin*0.5), self.row_height - 3.5)
         self.row_height -= 14
 
-    def generate(self, competition):
+    def _generate(self, competition, shepherds=None):
         current_period = None
 
         for n, slot in enumerate(competition.schedule.matches):
@@ -88,6 +89,17 @@ class ScheduleGenerator(object):
             if n % 65 == 65:
                 self.start_page(str(current_period))
 
+    def generate(self, competition, shepherds=None):
+        if shepherds is None:
+            self._generate(competition)
+        else:
+            self._generate(competition, None)
+
+            for shepherd in shepherds:
+                self._generate(competition, [shepherd])
+
+            self._generate(competition, shepherds)
+
     def write(self):
         self.canvas.save()
 
@@ -103,7 +115,12 @@ def command(settings):
     generator = ScheduleGenerator(settings.output, arenas=comp.arenas,
                                   state=comp.state)
 
-    generator.generate(comp)
+    if settings.shepherds:
+        shepherds = yaml.load(settings.shepherds)['shepherds']
+    else:
+        shepherds = None
+
+    generator.generate(comp, shepherds=shepherds)
     generator.write()
 
 
@@ -113,4 +130,6 @@ def add_subparser(subparsers):
     parser.add_argument('compstate', help='competition state repository')
     parser.add_argument('-o', '--output', help='output file',
                         type=argparse.FileType('wb'), required=True)
+    parser.add_argument('-s', '--shepherds', help='shepherds file',
+                        type=argparse.FileType('r'))
     parser.set_defaults(func=command)
