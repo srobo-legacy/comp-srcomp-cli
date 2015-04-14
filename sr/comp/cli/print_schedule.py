@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-
 import argparse
+
 
 class ScheduleGenerator(object):
     def __init__(self, target, arenas, state):
@@ -114,6 +114,7 @@ def command(settings):
 
     from sr.comp.comp import SRComp
 
+
     comp = SRComp(os.path.realpath(settings.compstate))
 
     generator = ScheduleGenerator(settings.output, arenas=comp.arenas,
@@ -129,9 +130,8 @@ def add_subparser(subparsers):
                                    help='print a shepherding sheet')
     parser.add_argument('compstate', help='competition state repository')
     parser.add_argument('-o', '--output', help='output file',
-                        type=argparse.FileType('wb'),
-                        required=True)
+                        type=argparse.FileType('wb'), required=True)
     parser.add_argument('-p', '--period', help='print a specific period')
-    parser.add_argument('-H', '--highlight', help='highlight specific team\'s matches',
-                        nargs='+')
+    parser.add_argument('-H', '--highlight', nargs='+',
+                        help="highlight specific team's matches")
     parser.set_defaults(func=command)
