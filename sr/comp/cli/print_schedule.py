@@ -108,7 +108,14 @@ class ScheduleGenerator(object):
 
         periods = self._get_periods(competition, period_numbers)
         for period in periods:
-            self.start_page(str(period))
+            if shepherds is None:
+                title = str(period)
+            else:
+                title = '{}; Shepherd {}' \
+                    .format(str(period),
+                            ', '.join(shepherd.get('name', '#{}'.format(i + 1))
+                                      for i, shepherd in enumerate(shepherds)))
+            self.start_page(title)
 
             for n, slot in enumerate(period.matches):
                 shepherd_counts = defaultdict(int)
