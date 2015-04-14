@@ -77,7 +77,7 @@ class ScheduleGenerator(object):
             period = competition.schedule.period_at(first_match.start_time)
             if period != current_period:
                 current_period = period
-                self.start_page(period.description)
+                self.start_page(str(period))
                 n = 0
 
             cells = ['', '']
@@ -94,7 +94,7 @@ class ScheduleGenerator(object):
             self.add_line(cells)
 
             if n % 66 == 65:
-                self.start_page(current_period.description)
+                self.start_page(str(current_period))
 
     def write(self):
         self.canvas.save()
