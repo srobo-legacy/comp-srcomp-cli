@@ -8,6 +8,7 @@ User Guide
    :maxdepth: 2
 
    introduction
+   commands/index
 
 API Reference
 -------------
