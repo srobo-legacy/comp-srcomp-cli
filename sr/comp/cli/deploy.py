@@ -104,21 +104,22 @@ def ref_compstate(host):
 def deploy_to(compstate, host, revision, verbose):
     print(BOLD + "Deploying to {0}:".format(host) + ENDC)
 
-    # Push the repo
-    url = ref_compstate(host)
-    # Make a new branch for this revision so that it's visible to
-    # anything which fetches the repo; use the revision id in the
-    # branch name to avoid race conditions without needing to come
-    # up with our own unique identifier.
-    # This also means we don't need to worry about whether or not the
-    # revision exists in the target, since this push will simply no-op
-    # if it's already present
-    revspec = "{0}:refs/heads/deploy-{0}".format(revision)
-    with exit_on_exception(kind=RuntimeError):
-        compstate.push(url, revspec,
-                       err_msg="Failed to push to {0}.".format(host))
-
+    # Make connection early to check if host is up.
     with ssh_connection(host) as client:
+        # Push the repo
+        url = ref_compstate(host)
+        # Make a new branch for this revision so that it's visible to
+        # anything which fetches the repo; use the revision id in the
+        # branch name to avoid race conditions without needing to come
+        # up with our own unique identifier.
+        # This also means we don't need to worry about whether or not the
+        # revision exists in the target, since this push will simply no-op
+        # if it's already present
+        revspec = "{0}:refs/heads/deploy-{0}".format(revision)
+        with exit_on_exception(kind=RuntimeError):
+            compstate.push(url, revspec,
+                           err_msg="Failed to push to {0}.".format(host))
+
         cmd = "./update '{0}'".format(revision)
         _, stdout, stderr = client.exec_command(cmd)
         retcode = stdout.channel.recv_exit_status()
