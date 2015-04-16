@@ -15,10 +15,12 @@ from . import knocked_out_teams
 from . import print_schedule
 from . import schedule_league
 from . import scorer
+from . import shift_matches
 from . import show_schedule
 from . import summary
 from . import validate
 from . import yaml_round_trip
+
 
 def add_list_commands(subparsers):
     def command(settings):
@@ -30,6 +32,7 @@ def add_list_commands(subparsers):
 
     parser = subparsers.add_parser('list-commands', help=help_text)
     parser.set_defaults(func=command)
+
 
 def argument_parser():
     """A parser for CLI tool command line arguments, from argparse."""
@@ -47,6 +50,7 @@ def argument_parser():
     print_schedule.add_subparser(subparsers)
     schedule_league.add_subparser(subparsers)
     scorer.add_subparser(subparsers)
+    shift_matches.add_subparser(subparsers)
     show_schedule.add_subparser(subparsers)
     summary.add_subparser(subparsers)
     validate.add_subparser(subparsers)
