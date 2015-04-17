@@ -211,7 +211,7 @@ def command(args):
     try:
         team_ids, arena_ids = load_teams_areans(args.compstate)
     except Exception as e:
-        print("Failed to load existing state ({0}}).".format(e))
+        print("Failed to load existing state ({0}).".format(e))
         print("Make it valid (consider removing the league.yaml) and try again.")
         exit(1)
 
