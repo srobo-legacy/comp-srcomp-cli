@@ -1,13 +1,11 @@
-import argparse
-from datetime import datetime, timedelta
-from pathlib import Path
-
-import yaml
-
-from sr.comp.yaml_loader import load as load_yaml
-
 
 def command(args):
+    from datetime import datetime, timedelta
+
+    import yaml
+
+    from sr.comp.yaml_loader import load as load_yaml
+
     schedule = load_yaml(str(args.compstate / 'schedule.yaml'))
 
     old_start = schedule['match_periods'][args.focus][0]['start_time']
@@ -34,6 +32,8 @@ def command(args):
 
 
 def add_subparser(subparsers):
+    from pathlib import Path
+
     parser = subparsers.add_parser('shift-matches', help='Shift matches up')
     parser.add_argument('compstate', type=Path,
                         help='competition state repository')
