@@ -11,7 +11,6 @@ def command(args):
     from collections import Counter
 
     from sr.comp.comp import SRComp
-    from sr.comp.match_period import MatchType
 
     comp = SRComp(args.compstate)
 
