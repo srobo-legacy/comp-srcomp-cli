@@ -12,6 +12,7 @@ from . import deploy
 from . import import_schedule
 from . import import_teams
 from . import knocked_out_teams
+from . import match_order_teams
 from . import print_schedule
 from . import schedule_league
 from . import scorer
@@ -47,6 +48,7 @@ def argument_parser():
     import_schedule.add_subparser(subparsers)
     import_teams.add_subparser(subparsers)
     knocked_out_teams.add_subparser(subparsers)
+    match_order_teams.add_subparser(subparsers)
     print_schedule.add_subparser(subparsers)
     schedule_league.add_subparser(subparsers)
     scorer.add_subparser(subparsers)
