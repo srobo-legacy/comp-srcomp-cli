@@ -44,9 +44,9 @@ class ScheduleGenerator(object):
             self.canvas.line(x, 30, x, 810)
 
     def draw_column_headings(self):
-        headings = [('Number', 'black', True), ('Time', 'black', True)]
+        headings = [('Number', 'white', True), ('Time', 'white', True)]
         for arena in self.arenas.values():
-            headings += [('{}'.format(arena.display_name), 'black', True),
+            headings += [('{}'.format(arena.display_name), 'white', True),
                          '', '', '']
         self.add_line(headings)
 
@@ -56,14 +56,14 @@ class ScheduleGenerator(object):
         for i, cell in enumerate(line):
             if isinstance(cell, tuple):
                 text = cell[0]
-                colour = cell[1]
+                background = cell[1]
                 try:
                     bold = cell[2]
                 except IndexError:
                     bold = False
             else:
                 text = cell
-                colour = '#000000'
+                background = None
                 bold = False
 
             if bold:
@@ -71,10 +71,16 @@ class ScheduleGenerator(object):
             else:
                 self.canvas.setFont('Helvetica', 10)
 
-            self.canvas.setFillColor(colour)
-            self.canvas.drawCentredString(self.margin + i * (self.width - 2*self.margin) / (self.columns - 1),
-                                          self.row_height, text)
-            self.canvas.setFillColor('black')
+            centre_x = self.margin + i * (self.width - 2*self.margin) / (self.columns - 1)
+            centre_y = self.row_height
+
+            if background is not None:
+                self.canvas.setFillColor(background)
+                self.canvas.rect(centre_x - 20, centre_y - 4, 40, 14,
+                                 stroke=False, fill=True)
+                self.canvas.setFillColor('black')
+
+            self.canvas.drawCentredString(centre_x, centre_y, text)
         self.canvas.line(self.margin*0.5, self.row_height - 3.5,
                          self.width-(self.margin*0.5), self.row_height - 3.5)
         self.row_height -= 14
@@ -130,7 +136,7 @@ class ScheduleGenerator(object):
                     match = slot.get(arena)
                     if match is not None:
                         for team in match.teams:
-                            colour = team_colours.get(team, '#000000')
+                            colour = team_colours.get(team, 'white')
                             bold = shepherd_counts.get(find_shepherd_number(team), 0) >= 4
                             cells.append((team if team else '–', colour, bold))
                         cells[0] = str(match.num)
