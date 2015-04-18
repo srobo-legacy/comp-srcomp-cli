@@ -194,26 +194,15 @@ def get_best_fit(ids, team_ids, schedule, arena_ids):
     return best
 
 
-def command(args):
+def build_schedule(schedule_lines, ids_to_ignore, team_ids, arena_ids):
     from sr.comp.stable_random import Random
-
-    with open(args.schedule, 'r') as sfp:
-        schedule_lines = tidy(sfp.readlines())
 
     # Collect up the ids used
     ids, schedule = load_ids_schedule(schedule_lines)
 
     # Ignore any ids we've been told to
-    if args.ignore_ids:
+    if ids_to_ignore:
         ignore_ids(ids, args.ignore_ids.split(','))
-
-    # Grab the teams and arenas
-    try:
-        team_ids, arena_ids = load_teams_areans(args.compstate)
-    except Exception as e:
-        print("Failed to load existing state ({0}).".format(e))
-        print("Make it valid (consider removing the league.yaml) and try again.")
-        exit(1)
 
     # Sanity checks
     num_ids = len(ids)
@@ -228,6 +217,24 @@ def command(args):
 
     # Get matches
     matches, bad_matches = get_best_fit(ids, team_ids, schedule, arena_ids)
+
+    return matches, bad_matches
+
+
+def command(args):
+    with open(args.schedule, 'r') as sfp:
+        schedule_lines = tidy(sfp.readlines())
+
+    # Grab the teams and arenas
+    try:
+        team_ids, arena_ids = load_teams_areans(args.compstate)
+    except Exception as e:
+        print("Failed to load existing state ({0}).".format(e))
+        print("Make it valid (consider removing the league.yaml) and try again.")
+        exit(1)
+
+    matches, bad_matches = build_schedule(schedule_lines, args.ignore_ids,
+                                          team_ids, arena_ids)
 
     # Print any warnings about the matches
     for bad_match in bad_matches:

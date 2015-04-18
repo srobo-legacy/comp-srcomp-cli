@@ -1,5 +1,5 @@
 
-from sr.comp.cli.import_schedule import get_id_subsets
+from sr.comp.cli.import_schedule import get_id_subsets, build_schedule
 
 
 def test_num_ids_equasl_num_teams():
@@ -53,3 +53,18 @@ def test_two_spare_ids():
         ids_omitted.append(",".join(map(str, sorted(omitted))))
 
     assert set(ids_omitted) == expected_omitted, "Should have omitted each id pair once"
+
+def test_build_schedule():
+    lines = ['0|1|2|3', '1|2|3|4']
+    teams = ['ABC', 'DEF', 'GHI']
+
+    matches, bad = build_schedule(lines, '', teams, ['A'])
+
+    expected_matches = {
+        0: {'A':  [None, 'ABC', 'DEF', 'GHI']},
+        1: {'A': ['ABC', 'DEF', 'GHI', None]},
+    }
+
+    assert expected_matches == matches, "Wrong matches"
+
+    assert bad == [], "Should not be any 'bad' matches"
