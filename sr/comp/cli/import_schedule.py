@@ -60,16 +60,24 @@ def load_teams_areans(compstate_path):
     return team_ids, arena_ids
 
 def load_ids_schedule(schedule_lines):
-    ids = set()
+    """
+    Converts an iterable of strings containing pipe-separated ids into
+    a tuple: ``(ids, schedule)``. The ``ids`` is a list of unique ids
+    in the order which they first appear, the ``schedule`` is a list of
+    lists of ids in each line.
+    """
+
+    ids = list()
     schedule = []
     for match in schedule_lines:
         match_ids = match.split('|')
         uniq_match_ids = set(match_ids)
         assert len(match_ids) == len(uniq_match_ids), match_ids
-        ids |= uniq_match_ids
         schedule.append(match_ids)
 
-    ids = list(sorted(ids))
+        for id_ in match_ids:
+            if id_ not in ids:
+                ids.append(id_)
 
     return ids, schedule
 
@@ -194,9 +202,50 @@ def get_best_fit(ids, team_ids, schedule, arena_ids):
     return best
 
 
-def build_schedule(schedule_lines, ids_to_ignore, team_ids, arena_ids):
+def order_teams(compstate_path, team_ids):
+    """
+    Order teams either randomly or, if there's a layout available, by location.
+    """
+    import os.path
+    import yaml
+
     from sr.comp.stable_random import Random
 
+    layout_yaml = os.path.join(compstate_path, 'layout.yaml')
+    if not os.path.exists(layout_yaml):
+        # No layout; go random
+        random = Random()
+        random.seed("".join(team_ids))
+        random.shuffle(team_ids)
+        return team_ids
+
+    with open(layout_yaml, 'r') as lf:
+        layout_raw = yaml.load(lf)
+        layout = layout_raw['layout']
+
+    ordered_teams = []
+    for group in layout:
+        ordered_teams += next(iter(group.values()))
+
+    layout_teams = set(ordered_teams)
+    assert len(layout_teams) == len(ordered_teams), "Some teams appear twice in the layout!"
+
+    all_teams = set(team_ids)
+    missing = all_teams - layout_teams
+    assert not missing, "Some teams not in layout: {0}.".format(", ".join(missing))
+
+    all_teams = set(team_ids)
+    extra = layout_teams - all_teams
+    if extra:
+        print("WARNING: Extra teams in layout will be ignoreed: {0}."
+                    .format(", ".join(extra)))
+        for tla in extra:
+            ordered_teams.remove(tla)
+
+    return ordered_teams
+
+
+def build_schedule(schedule_lines, ids_to_ignore, team_ids, arena_ids):
     # Collect up the ids used
     ids, schedule = load_ids_schedule(schedule_lines)
 
@@ -209,11 +258,6 @@ def build_schedule(schedule_lines, ids_to_ignore, team_ids, arena_ids):
     num_teams = len(team_ids)
     assert num_ids >= num_teams, "Not enough places in the schedule " \
                                  "(need {0}, got {1}).".format(num_ids, num_teams)
-
-    # Semi-randomise
-    random = Random()
-    random.seed("".join(team_ids))
-    random.shuffle(team_ids)
 
     # Get matches
     matches, bad_matches = get_best_fit(ids, team_ids, schedule, arena_ids)
@@ -232,6 +276,9 @@ def command(args):
         print("Failed to load existing state ({0}).".format(e))
         print("Make it valid (consider removing the league.yaml) and try again.")
         exit(1)
+
+    # Semi-randomise
+    team_ids = order_teams(args.compstate, team_ids)
 
     matches, bad_matches = build_schedule(schedule_lines, args.ignore_ids,
                                           team_ids, arena_ids)

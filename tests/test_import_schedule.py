@@ -68,3 +68,18 @@ def test_build_schedule():
     assert expected_matches == matches, "Wrong matches"
 
     assert bad == [], "Should not be any 'bad' matches"
+
+def test_build_schedule_appaerance_order():
+    lines = ['3|1|0|4', '1|2|4|0']
+    teams = ['ABC', 'DEF', 'GHI']
+
+    matches, bad = build_schedule(lines, '', teams, ['A'])
+
+    expected_matches = {
+        0: {'A':  [None, 'ABC', 'DEF', 'GHI']},
+        1: {'A': ['ABC', None, 'GHI', 'DEF']},
+    }
+
+    assert expected_matches == matches, "Wrong matches"
+
+    assert bad == [], "Should not be any 'bad' matches"
