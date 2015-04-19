@@ -130,12 +130,12 @@ class ScheduleGenerator(object):
         title = str(period)
 
         if shepherds:
-            title += '; Shepherd {}'.format(
+            title += ' • Shepherd {}'.format(
                 ', '.join(shepherd.get('name', '#{}'.format(i + 1))
                           for i, shepherd in enumerate(shepherds)))
 
         if include_locations and locations:
-            title += '; {}'.format(
+            title += ' • {}'.format(
                 ', '.join(l['display_name'] for l in locations))
 
         return title
