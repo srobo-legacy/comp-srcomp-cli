@@ -30,7 +30,7 @@ class ScheduleGenerator(object):
         self.draw_column_headings()
 
     def draw_header(self, text):
-        self.canvas.setFont('Helvetica', 12)
+        self.canvas.setFont('Helvetica', 10)
         self.canvas.drawCentredString(self.width * 0.5, 820, text)
 
     def draw_footer(self):
