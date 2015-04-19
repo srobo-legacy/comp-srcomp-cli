@@ -98,6 +98,17 @@ class ScheduleGenerator(object):
         return periods
 
     @staticmethod
+    def _get_shepherds(raw_compstate, numbers=None):
+        comp_shepherds = raw_compstate.shepherding['shepherds']
+        if numbers is None:
+            return comp_shepherds
+
+        shepherds = []
+        for n in numbers:
+            shepherds.append(comp_shepherds[n])
+        return shepherds
+
+    @staticmethod
     def _get_locations(raw_compstate, names=None):
         layout = raw_compstate.layout['layout']
         if names is None:
@@ -159,14 +170,12 @@ class ScheduleGenerator(object):
             if n % 65 == 65:
                 self.start_page('')
 
-    def generate(self, competition, raw_compstate, period_numbers):
-        shepherds = raw_compstate.shepherding['shepherds']
+    def generate(self, competition, raw_compstate, period_numbers,
+                 shepherd_numbers):
         periods = self._get_periods(competition, period_numbers)
+        shepherds = self._get_shepherds(raw_compstate, shepherd_numbers)
 
         for period in periods:
-            self._generate(None, period)
-            for shepherd in shepherds:
-                self._generate([shepherd], period)
             self._generate(shepherds, period)
 
     def write(self):
@@ -186,7 +195,7 @@ def command(settings):
     generator = ScheduleGenerator(settings.output, arenas=comp.arenas,
                                   state=comp.state)
 
-    generator.generate(comp, raw_comp, settings.periods)
+    generator.generate(comp, raw_comp, settings.periods, settings.shepherds)
     generator.write()
 
 
@@ -198,4 +207,6 @@ def add_subparser(subparsers):
                         type=argparse.FileType('wb'), required=True)
     parser.add_argument('-p', '--periods', type=int, nargs='+',
                         help='specify periods by number')
+    parser.add_argument('-s', '--shepherds', type=int, nargs='+',
+                        help='specify shepherds by number')
     parser.set_defaults(func=command)
