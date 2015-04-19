@@ -221,11 +221,11 @@ def order_teams(compstate_path, team_ids):
 
     with open(layout_yaml, 'r') as lf:
         layout_raw = yaml.load(lf)
-        layout = layout_raw['layout']
+        layout = layout_raw['teams']
 
     ordered_teams = []
     for group in layout:
-        ordered_teams += next(iter(group.values()))
+        ordered_teams += group['teams']
 
     layout_teams = set(ordered_teams)
     assert len(layout_teams) == len(ordered_teams), "Some teams appear twice in the layout!"
