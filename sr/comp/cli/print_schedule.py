@@ -126,7 +126,7 @@ class ScheduleGenerator(object):
         return locations
 
     @staticmethod
-    def _get_page_title(period, shepherds, locations):
+    def _get_page_title(period, shepherds, locations, include_locations=True):
         title = str(period)
 
         if shepherds:
@@ -134,7 +134,7 @@ class ScheduleGenerator(object):
                 ', '.join(shepherd.get('name', '#{}'.format(i + 1))
                           for i, shepherd in enumerate(shepherds)))
 
-        if locations:
+        if include_locations and locations:
             title += '; {}'.format(
                 ', '.join(l['display_name'] for l in locations))
 
@@ -152,7 +152,8 @@ class ScheduleGenerator(object):
                     return True
         return False
 
-    def _generate(self, period, shepherds, locations):
+    def _generate(self, period, shepherds, locations,
+                  include_locations_in_title):
         def find_shepherd_number(team):
             if shepherds is None:
                 return None
@@ -167,7 +168,8 @@ class ScheduleGenerator(object):
                 for team in shepherd['teams']:
                     team_colours[team] = shepherd['colour']
 
-        title = self._get_page_title(period, shepherds, locations)
+        title = self._get_page_title(period, shepherds, locations,
+                                     include_locations_in_title)
         self.start_page(title)
 
         n = 0
@@ -205,7 +207,8 @@ class ScheduleGenerator(object):
         locations = self._get_locations(raw_compstate, location_names)
 
         for period in periods:
-            self._generate(period, shepherds, locations)
+            self._generate(period, shepherds, locations,
+                           location_names is not None)
 
     def write(self):
         self.canvas.save()
