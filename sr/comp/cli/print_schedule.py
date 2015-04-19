@@ -110,18 +110,49 @@ class ScheduleGenerator(object):
 
     @staticmethod
     def _get_locations(raw_compstate, names=None):
-        layout = raw_compstate.layout['layout']
+        comp_locations = raw_compstate.layout['teams']
         if names is None:
-            return layout
+            return comp_locations
 
         locations = []
-        for location in layout:
-            if location.keys()[0] in names:
-                locations.append(location)
+        for name in names:
+            for location in comp_locations:
+                if location['name'] == name:
+                    locations.append(location)
+                    break
+            else:
+                raise KeyError(name)
 
         return locations
 
-    def _generate(self, shepherds, period):
+    @staticmethod
+    def _get_page_title(period, shepherds, locations):
+        title = str(period)
+
+        if shepherds:
+            title += '; Shepherd {}'.format(
+                ', '.join(shepherd.get('name', '#{}'.format(i + 1))
+                          for i, shepherd in enumerate(shepherds)))
+
+        if locations:
+            title += '; {}'.format(
+                ', '.join(l['display_name'] for l in locations))
+
+        return title
+
+    @staticmethod
+    def _match_suitable_for_locations(slot, locations):
+        suitable_teams = []
+        for location in locations:
+            suitable_teams += location['teams']
+
+        for match in slot.values():
+            for team in match.teams:
+                if team in suitable_teams:
+                    return True
+        return False
+
+    def _generate(self, period, shepherds, locations):
         def find_shepherd_number(team):
             if shepherds is None:
                 return None
@@ -136,16 +167,11 @@ class ScheduleGenerator(object):
                 for team in shepherd['teams']:
                     team_colours[team] = shepherd['colour']
 
-        if shepherds is None:
-            title = str(period)
-        else:
-            title = '{}; Shepherd {}' \
-                .format(str(period),
-                        ', '.join(shepherd.get('name', '#{}'.format(i + 1))
-                                  for i, shepherd in enumerate(shepherds)))
+        title = self._get_page_title(period, shepherds, locations)
         self.start_page(title)
 
-        for n, slot in enumerate(period.matches):
+        n = 0
+        for slot in period.matches:
             shepherd_counts = defaultdict(int)
             for match in slot.values():
                 for team in match.teams:
@@ -153,30 +179,33 @@ class ScheduleGenerator(object):
                     if num is not None:
                         shepherd_counts[num] += 1
 
-            cells = ['', '']
-            for arena in self.arenas:
-                match = slot.get(arena)
-                if match is not None:
-                    for team in match.teams:
-                        colour = team_colours.get(team, 'white')
-                        bold = shepherd_counts.get(find_shepherd_number(team), 0) >= 4
-                        cells.append((team if team else '–', colour, bold))
-                    cells[0] = str(match.num)
-                    cells[1] = str(match.start_time.strftime('%H:%M'))
-                else:
-                    cells += ['–', '–', '–', '–']
-            self.add_line(cells)
+            if self._match_suitable_for_locations(slot, locations):
+                cells = ['', '']
+                for arena in self.arenas:
+                    match = slot.get(arena)
+                    if match is not None:
+                        for team in match.teams:
+                            colour = team_colours.get(team, 'white')
+                            bold = shepherd_counts.get(find_shepherd_number(team), 0) >= 4
+                            cells.append((team if team else '–', colour, bold))
+                        cells[0] = str(match.num)
+                        cells[1] = str(match.start_time.strftime('%H:%M'))
+                    else:
+                        cells += ['–', '–', '–', '–']
+                self.add_line(cells)
+                n += 1
 
             if n % 65 == 65:
-                self.start_page('')
+                self.start_page(title)
 
     def generate(self, competition, raw_compstate, period_numbers,
-                 shepherd_numbers):
+                 shepherd_numbers, location_names):
         periods = self._get_periods(competition, period_numbers)
         shepherds = self._get_shepherds(raw_compstate, shepherd_numbers)
+        locations = self._get_locations(raw_compstate, location_names)
 
         for period in periods:
-            self._generate(shepherds, period)
+            self._generate(period, shepherds, locations)
 
     def write(self):
         self.canvas.save()
@@ -195,7 +224,8 @@ def command(settings):
     generator = ScheduleGenerator(settings.output, arenas=comp.arenas,
                                   state=comp.state)
 
-    generator.generate(comp, raw_comp, settings.periods, settings.shepherds)
+    generator.generate(comp, raw_comp, settings.periods, settings.shepherds,
+                       settings.locations)
     generator.write()
 
 
@@ -209,4 +239,6 @@ def add_subparser(subparsers):
                         help='specify periods by number')
     parser.add_argument('-s', '--shepherds', type=int, nargs='+',
                         help='specify shepherds by number')
+    parser.add_argument('-l', '--locations', nargs='+',
+                        help='specify locations by name')
     parser.set_defaults(func=command)
