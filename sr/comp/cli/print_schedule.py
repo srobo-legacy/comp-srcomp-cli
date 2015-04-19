@@ -167,19 +167,17 @@ def command(settings):
     import os.path
 
     from sr.comp.comp import SRComp
-
+    from sr.comp.raw_compstate import RawCompstate
 
     comp = SRComp(os.path.realpath(settings.compstate))
+    raw_comp = RawCompstate(os.path.realpath(settings.compstate),
+                            local_only=True)
 
     generator = ScheduleGenerator(settings.output, arenas=comp.arenas,
                                   state=comp.state)
 
-    if settings.shepherds:
-        shepherds = yaml.load(settings.shepherds)['shepherds']
-    else:
-        shepherds = None
-
-    generator.generate(comp, settings.periods, shepherds)
+    generator.generate(comp, settings.periods,
+                       raw_comp.shepherding['shepherds'])
     generator.write()
 
 
@@ -189,8 +187,6 @@ def add_subparser(subparsers):
     parser.add_argument('compstate', help='competition state repository')
     parser.add_argument('-o', '--output', help='output file',
                         type=argparse.FileType('wb'), required=True)
-    parser.add_argument('-s', '--shepherds', help='shepherds file',
-                        type=argparse.FileType('r'))
     parser.add_argument('-p', '--periods', type=int, nargs='+',
                         help='specify periods by number')
     parser.set_defaults(func=command)
