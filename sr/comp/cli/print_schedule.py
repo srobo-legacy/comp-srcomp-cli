@@ -142,7 +142,7 @@ class ScheduleGenerator(object):
 
     @staticmethod
     def _match_suitable_for_locations(slot, locations):
-        suitable_teams = []
+        suitable_teams = ['???']
         for location in locations:
             suitable_teams += location['teams']
 
