@@ -5,7 +5,8 @@ def format_team(entry):
     else:
         name = entry['college']['name']
     rookie = entry['college']['rookie']
-    return {'name': str(name).strip(),
+    name = name.encode('utf-8')
+    return {'name': name.strip(),
             'rookie': rookie}
 
 
