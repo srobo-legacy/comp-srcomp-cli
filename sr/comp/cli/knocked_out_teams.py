@@ -14,7 +14,9 @@ def command(settings):
 
         print("Teams not in round {}".format(i))
         out = teams_last_round - teams_this_round
-        print(", ".join(t for t in out if t is not None))
+        teams_out = [t for t in out if t is not None]
+        for tla in teams_out:
+            print(tla, comp.teams[tla].name)
         teams_last_round = teams_this_round
         print()
 
