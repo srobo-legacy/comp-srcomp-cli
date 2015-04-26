@@ -26,7 +26,7 @@ def command(settings):
         else:
             print('  Split between {} teams (a tie):'.format(len(recipients)))
             for recipient in recipients:
-                print(format_team(recipient))
+                print("  ", format_team(recipient))
         print()
 
 def add_subparser(subparsers):
