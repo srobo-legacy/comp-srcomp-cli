@@ -15,18 +15,19 @@ def command(settings):
                                   ' [rookie]' if team.rookie else '')
 
     for award in Award:
-        print('~~~ {} ~~~'.format(award.value.upper()))
+        print('### {}'.format(award.value.upper()))
         recipients = comp.awards.get(award, None)
         if recipients is None:
-            print('Not yet awarded.')
+            print('  Not yet awarded.')
         elif not recipients:
-            print('Awarded to nobody.')
+            print('  Awarded to nobody.')
         elif len(recipients) == 1:
-            print(format_team(recipients[0]))
+            print(" ", format_team(recipients[0]))
         else:
-            print('Split between {} teams (a tie):'.format(len(recipients)))
+            print('  Split between {} teams (a tie):'.format(len(recipients)))
             for recipient in recipients:
                 print(format_team(recipient))
+        print()
 
 def add_subparser(subparsers):
     parser = subparsers.add_parser('awards',
