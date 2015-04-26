@@ -1,5 +1,14 @@
 from __future__ import print_function
 
+def round_name(rounds_left):
+    if rounds_left == 0:
+        return "Finals"
+    elif rounds_left == 1:
+        return "Semi Finals"
+    elif rounds_left == 2:
+        return "Quarter Finals"
+    return ""
+
 def command(settings):
     from sr.comp.comp import SRComp
     import os.path
@@ -7,12 +16,13 @@ def command(settings):
     comp = SRComp(os.path.realpath(settings.compstate))
 
     teams_last_round = set()
+    last_round_num = len(comp.schedule.knockout_rounds) - 1
     for i, matches in enumerate(comp.schedule.knockout_rounds):
         teams_this_round = set()
         for game in matches:
             teams_this_round.update(game.teams)
 
-        print("Teams not in round {}".format(i))
+        print("Teams not in round {} ({})".format(i, round_name(last_round_num - i)))
         out = teams_last_round - teams_this_round
         teams_out = [t for t in out if t is not None]
         for tla in teams_out:
