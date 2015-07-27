@@ -36,8 +36,8 @@ def command(settings):
     teams_len = len(empty_teams)
 
     print_col(' Num Time  ')
-    map(print_col, (a.display_name.center(teams_len)
-                    for a in comp.arenas.values()))
+    for a in comp.arenas.values():
+        print_col(a.display_name.center(teams_len))
     print_col('Display Name'.center(DISPLAY_NAME_WIDTH))
     print()
 
