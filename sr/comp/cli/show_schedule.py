@@ -27,8 +27,7 @@ def command(settings):
         matches = matches[:int(settings.limit)]
 
     def teams_str(teams):
-        return ':'.join(map(lambda s: s.center(5),
-                           (tla if tla else '-' for tla in teams)))
+        return ':'.join(tla.center(5) if tla else '-' for tla in teams)
 
     def print_col(text, last=False):
         print(text, end='|')
