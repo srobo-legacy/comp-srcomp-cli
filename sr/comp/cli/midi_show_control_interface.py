@@ -50,7 +50,7 @@ class CompetitionStateMachine:
         now = self.now
         for slot in self.comp.schedule.matches:
             for match in slot.values():
-                if match.end_time >= now:
+                if self.get_game_end_time(match) >= now:
                     return match
         return None
 
@@ -62,30 +62,16 @@ class CompetitionStateMachine:
         match_slot_lengths = self.comp.schedule.match_slot_lengths
         return match.end_time - match_slot_lengths['post']
 
-    def is_match_playing(self, match, now=None):
-        if now is None:
-            now = self.now
-
-        match_slot_lengths = self.comp.schedule.match_slot_lengths
-        s = (now - match.start_time).total_seconds()
-        return s >= match_slot_lengths['pre'] \
-            and s <= match_slot_lengths['pre'] + match_slot_lengths['match']
-
-    def is_match_ending(self, match):
-        now = self.now
-
-        if not self.is_match_playing(match, now):
-            return False
-
-        match_slot_lengths = self.comp.schedule.match_slot_lengths
-        s = (self.now - match.start_time).total_seconds()
-        return s >= match_slot_lengths['pre'] + match_slot_lengths['post'] - 10
+    def is_match_in_game(self, match):
+        a = self.get_game_start_time(match)
+        b = self.get_game_end_time(match)
+        return a <= self.now <= b
 
     @property
     def current_state(self):
         current_match = self.current_match
 
-        if current_match is not None:
+        if current_match is not None and self.is_match_in_game(current_match):
             game_end_time = self.get_game_end_time(current_match)
             game_ending_time = game_end_time - timedelta(seconds=10)
             if self.now <= game_ending_time:
@@ -103,7 +89,7 @@ class CompetitionStateMachine:
         if game_starting_time <= self.now <= game_start_time:
             return State.pre_match, game_start_time
 
-        return State.idle, game_start_time
+        return State.idle, game_starting_time
 
     def transition(self):
         prev_state = None
