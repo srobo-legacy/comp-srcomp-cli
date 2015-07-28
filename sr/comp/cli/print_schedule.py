@@ -187,6 +187,8 @@ class ScheduleGenerator(object):
                     match = slot.get(arena)
                     if match is not None:
                         for team in match.teams:
+                            if team == '???':
+                                team = '____'
                             colour = team_colours.get(team, 'white')
                             bold = shepherd_counts.get(find_shepherd_number(team), 0) >= 4
                             cells.append((team if team else '–', colour, bold))
