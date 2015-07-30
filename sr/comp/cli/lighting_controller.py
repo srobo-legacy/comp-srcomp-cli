@@ -4,13 +4,10 @@ from datetime import timedelta
 from enum import Enum
 import time
 
-import mido
-
 from sr.comp.comp import SRComp
 
 
-__description__ = 'MIDI Show Control Interface to control lights and other ' \
-                  'things at a competition.'
+__description__ = 'A way of controlling lights at the competition.'
 
 
 class State(Enum):
@@ -20,7 +17,7 @@ class State(Enum):
     pre_match = 3
 
 
-class CompetitionStateMachine:
+class CompetitionStateMachine(object):
     def __init__(self, comp):
         self.comp = comp
 
@@ -100,7 +97,21 @@ class CompetitionStateMachine:
             prev_state = state
 
 
-class LightingController:
+class LightingController(object):
+    def __init__(self, comp):
+        self.comp = comp
+        self.state = CompetitionStateMachine(comp)
+
+    def transition(self, prev_state, state, transition_date):
+        pass
+
+    def run(self):
+        for prev_state, state, transition_date in self.state.transition():
+            self.transition(prev_state, state, transition_date)
+            print(state, 'until', transition_date)
+
+
+class MidiLightingController(LightingController):
     tracks = {
         State.idle: 0,
         State.match: 1,
@@ -109,8 +120,8 @@ class LightingController:
     }
 
     def __init__(self, comp, midi):
-        self.comp = comp
-        self.state = CompetitionStateMachine(comp)
+        super(MidiLightingController, self).__init__(comp)
+
         self.midi = midi
         self.cur_playback = None
 
@@ -124,42 +135,40 @@ class LightingController:
     def stop_playback(self, note):
         self.note_on(note, 0)
 
-    def run(self):
-        for _, state, transition_date in self.state.transition():
-            if self.cur_playback is not None:
-                self.stop_playback(self.cur_playback)
+    def transition(self, prev_state, state, transition_date):
+        if self.cur_playback is not None:
+            self.stop_playback(self.cur_playback)
 
-            playback = self.tracks[state]
-            self.start_playback(playback)
-            self.cur_playback = playback
-
-            print(state, 'until', transition_date)
-
-
-class PrintOutput(mido.ports.BaseOutput):
-    def _send(self, message):
-        print(message)
+        playback = self.tracks[state]
+        self.start_playback(playback)
+        self.cur_playback = playback
 
 
 def command(args):
     comp = SRComp(args.compstate)
 
-    if args.dry_run:
-        output = PrintOutput()
-    else:
-        output = mido.open_output(args.output)
+    controller = None
 
-    LightingController(comp, output).run()
+    if args.dry_run:
+        controller = LightingController(comp)
+    elif args.midi:
+        import mido
+        output = mido.open_output(args.midi)
+        controller = MidiLightingController(comp, output)
+
+    assert controller
+
+    controller.run()
 
 
 def add_subparser(subparsers):
-    parser = subparsers.add_parser('midi-show-control-interface',
+    parser = subparsers.add_parser('lighting-controller',
                                    help=__description__,
                                    description=__description__)
     parser.add_argument('compstate', help='Competition state repository.')
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--port', help='The MIDI port to use.')
+    group.add_argument('--midi', help='The MIDI port to use.')
     group.add_argument('--dry-run', action='store_true', help='Dry run.')
 
     parser.set_defaults(func=command)

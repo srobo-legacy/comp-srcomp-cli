@@ -12,9 +12,9 @@ from . import deploy
 from . import import_schedule
 from . import import_teams
 from . import knocked_out_teams
-from . import match_order_teams
-from . import midi_show_control_interface
+from . import lighting_controller
 from . import list_midi_ports
+from . import match_order_teams
 from . import print_schedule
 from . import schedule_league
 from . import scorer
@@ -51,8 +51,8 @@ def argument_parser():
     import_teams.add_subparser(subparsers)
     knocked_out_teams.add_subparser(subparsers)
     list_midi_ports.add_subparser(subparsers)
+    lighting_controller.add_subparser(subparsers)
     match_order_teams.add_subparser(subparsers)
-    midi_show_control_interface.add_subparser(subparsers)
     print_schedule.add_subparser(subparsers)
     schedule_league.add_subparser(subparsers)
     scorer.add_subparser(subparsers)
