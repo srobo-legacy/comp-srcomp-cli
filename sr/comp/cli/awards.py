@@ -10,9 +10,8 @@ def command(settings):
 
     def format_team(tla):
         team = comp.teams[tla]
-        return '{} ({}{})'.format(tla,
-                                  team.name,
-                                  ' [rookie]' if team.rookie else '')
+        return u'{} ({}{})'.format(tla, team.name,
+                                   ' [rookie]' if team.rookie else '')
 
     for award in Award:
         print('### {}'.format(award.value.upper()))
