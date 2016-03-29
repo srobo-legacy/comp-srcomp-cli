@@ -13,7 +13,15 @@ def command(settings):
         return u'{} ({}{})'.format(tla, team.name,
                                    ' [rookie]' if team.rookie else '')
 
-    for award in Award:
+    award_order = (Award.image, Award.web, Award.committee,
+                   Award.rookie, Award.movement,
+                   Award.third, Award.second, Award.first
+                   )
+
+    missing = set(Award) - set(award_order)
+    assert not missing, "Awards missed!: {0}".format(", ".join(map(str, missing)))
+
+    for award in award_order:
         print('### {}'.format(award.value.upper()))
         recipients = comp.awards.get(award, None)
         if recipients is None:
