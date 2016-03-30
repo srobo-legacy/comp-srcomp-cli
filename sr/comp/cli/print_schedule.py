@@ -161,6 +161,21 @@ class ScheduleGenerator(object):
                 for team in shepherd['teams']:
                     team_colours[team] = shepherd['colour']
 
+        def get_team_cell(team):
+            if team == '???':
+                team = '____'
+            elif not team:
+                team = '–'
+
+            colour = team_colours.get(team, 'white')
+
+            # If the shepherd for this team needs to get at least 4
+            # teams during this slot them embolden all their teams
+            bold = shepherd_counts.get(find_shepherd_number(team), 0) >= 4
+
+            cell = (team, colour, bold)
+            return cell
+
         title = self._get_page_title(period, shepherds, locations,
                                      include_locations_in_title)
         self.start_page(title)
@@ -180,14 +195,7 @@ class ScheduleGenerator(object):
                 for arena in self.arenas:
                     match = slot.get(arena)
                     if match is not None:
-                        for team in match.teams:
-                            if team == '???':
-                                team = '____'
-                            colour = team_colours.get(team, 'white')
-                            # If the shepherd for this team needs to get at least 4
-                            # teams during this slot them embolden all their teams
-                            bold = shepherd_counts.get(find_shepherd_number(team), 0) >= 4
-                            cells.append((team if team else '–', colour, bold))
+                        cells += list(map(get_team_cell, match.teams))
                         cells[0] = str(match.num)
                         cells[1] = str(match.start_time.strftime('%H:%M'))
                     else:
