@@ -114,14 +114,7 @@ class ScheduleGenerator(object):
         if names is None:
             return comp_locations
 
-        locations = []
-        for name in names:
-            for location in comp_locations:
-                if location['name'] == name:
-                    locations.append(location)
-                    break
-            else:
-                raise KeyError(name)
+        locations = {name: comp_locations[name] for name in names}
 
         return locations
 
@@ -136,14 +129,14 @@ class ScheduleGenerator(object):
 
         if include_locations and locations:
             title += ' • {}'.format(
-                ', '.join(l['display_name'] for l in locations))
+                ', '.join(l['display_name'] for l in locations.values()))
 
         return title
 
     @staticmethod
     def _match_suitable_for_locations(slot, locations):
         suitable_teams = ['???']
-        for location in locations:
+        for location in locations.values():
             suitable_teams += location['teams']
 
         for match in slot.values():
