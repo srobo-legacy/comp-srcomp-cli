@@ -174,6 +174,7 @@ class ScheduleGenerator(object):
 
         n = 0
         for slot in period.matches:
+            # Build map of shepherd id -> total teams they need to fetch this slot
             shepherd_counts = defaultdict(int)
             for match in slot.values():
                 for team in match.teams:
@@ -190,6 +191,8 @@ class ScheduleGenerator(object):
                             if team == '???':
                                 team = '____'
                             colour = team_colours.get(team, 'white')
+                            # If the shepherd for this team needs to get more than 4
+                            # teams during this slot them embolden all their teams
                             bold = shepherd_counts.get(find_shepherd_number(team), 0) >= 4
                             cells.append((team if team else '–', colour, bold))
                         cells[0] = str(match.num)
