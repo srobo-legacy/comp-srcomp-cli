@@ -99,7 +99,7 @@ class ScheduleGenerator(object):
 
     @staticmethod
     def _get_shepherds(raw_compstate, numbers=None):
-        comp_shepherds = raw_compstate.shepherding['shepherds']
+        comp_shepherds = raw_compstate.load_shepherds()
         if numbers is None:
             return comp_shepherds
 
