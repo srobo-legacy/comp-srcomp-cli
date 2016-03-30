@@ -146,7 +146,7 @@ class ScheduleGenerator(object):
         return False
 
     def _generate(self, period, shepherds, locations,
-                  include_locations_in_title):
+                  include_locations_in_title, is_plain):
         def find_shepherd_number(team):
             if shepherds is None:
                 return None
@@ -166,6 +166,9 @@ class ScheduleGenerator(object):
                 team = '____'
             elif not team:
                 team = '–'
+
+            if is_plain:
+                return team
 
             colour = team_colours.get(team, 'white')
 
@@ -207,14 +210,14 @@ class ScheduleGenerator(object):
                 self.start_page(title)
 
     def generate(self, competition, raw_compstate, period_numbers,
-                 shepherd_numbers, location_names):
+                 shepherd_numbers, location_names, is_plain):
         periods = self._get_periods(competition, period_numbers)
         shepherds = self._get_shepherds(raw_compstate, shepherd_numbers)
         locations = self._get_locations(raw_compstate, location_names)
 
         for period in periods:
             self._generate(period, shepherds, locations,
-                           location_names is not None)
+                           location_names is not None, is_plain)
 
     def write(self):
         self.canvas.save()
@@ -234,7 +237,7 @@ def command(settings):
                                   state=comp.state)
 
     generator.generate(comp, raw_comp, settings.periods, settings.shepherds,
-                       settings.locations)
+                       settings.locations, settings.plain)
     generator.write()
 
 
@@ -244,6 +247,8 @@ def add_subparser(subparsers):
     parser.add_argument('compstate', help='competition state repository')
     parser.add_argument('-o', '--output', help='output file',
                         type=argparse.FileType('wb'), required=True)
+    parser.add_argument('--plain', action='store_true',
+                        help='output the schedule without any colouring or emboldening')
     parser.add_argument('-p', '--periods', type=int, nargs='+',
                         help='specify periods by number')
     parser.add_argument('-s', '--shepherds', type=int, nargs='+',
