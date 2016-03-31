@@ -251,7 +251,7 @@ def build_schedule(schedule_lines, ids_to_ignore, team_ids, arena_ids):
 
     # Ignore any ids we've been told to
     if ids_to_ignore:
-        ignore_ids(ids, args.ignore_ids.split(','))
+        ignore_ids(ids, ids_to_ignore.split(','))
 
     # Sanity checks
     num_ids = len(ids)
