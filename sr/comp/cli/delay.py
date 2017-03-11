@@ -7,8 +7,8 @@ from sr.comp.cli import deploy
 def command(args):
     from sr.comp.raw_compstate import RawCompstate
 
-    hosts = deploy.get_deployments(args.compstate)
     compstate = RawCompstate(args.compstate, local_only=False)
+    hosts = deploy.get_deployments(compstate)
 
     deploy.require_no_changes(compstate)
 
