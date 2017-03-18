@@ -45,7 +45,9 @@ def command(settings):
     # Append slash so urljoin doesn't convert foo.com/srweb into foo.com
     server_url = settings.server + '/'
     target = urljoin(server_url, 'teams-data.php')
-    team_data = requests.get(target).json()
+    response = requests.get(target)
+    response.raise_for_status()
+    team_data = response.json()
 
     # write out teams.yaml file
     with open(teams_yaml, 'w') as f:
