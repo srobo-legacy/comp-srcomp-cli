@@ -21,6 +21,7 @@ from . import scorer
 from . import shift_matches
 from . import show_schedule
 from . import summary
+from . import top_match_points
 from . import update_layout
 from . import validate
 from . import yaml_round_trip
@@ -60,6 +61,7 @@ def argument_parser():
     shift_matches.add_subparser(subparsers)
     show_schedule.add_subparser(subparsers)
     summary.add_subparser(subparsers)
+    top_match_points.add_subparser(subparsers)
     update_layout.add_subparser(subparsers)
     validate.add_subparser(subparsers)
     yaml_round_trip.add_subparser(subparsers)
