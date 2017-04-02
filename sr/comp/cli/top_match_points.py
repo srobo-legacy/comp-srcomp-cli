@@ -22,18 +22,21 @@ def command(settings):
         for tla, team_points in points.items():
             points_map[team_points][tla].append(match)
 
-    for points, team_info in sorted(points_map.items()):
-        print("{0:>3} teams scored {1}".format(len(team_info), points))
+    count = len(points_map)
 
-    max_points = max(points_map.keys())
-    max_points_infos = points_map[max_points]
-
-    print()
-    print("The following team(s) scored {0} points:".format(max_points))
-    for tla, matches in max_points_infos.items():
-        print("{0} in match(es): {1}".format(tla, ", ".join(
-            "{0}{1}".format(*x) for x in matches
-        )))
+    for idx, (points, team_info) in enumerate(sorted(points_map.items())):
+        if idx + 2 < count:
+            print("{0:>3} teams scored {1}".format(len(team_info), points))
+        else:
+            print()
+            print("The following {0} team(s) scored {1} points:".format(
+                len(team_info),
+                points,
+            ))
+            for tla, matches in team_info.items():
+                print("- {0} in match(es): {1}".format(tla, ", ".join(
+                    "{0}{1}".format(*x) for x in matches
+                )))
 
 
 def add_subparser(subparsers):
