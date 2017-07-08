@@ -1,13 +1,14 @@
 dist: trusty
 language: python
 python:
-  - "3.6-dev"
+  - "3.7-dev"
+  - "3.6"
   - "3.5"
   - "3.4"
   - "2.7"
 matrix:
   allow_failures:
-    - python: "3.6-dev"
+    - python: "3.7-dev"
 before_install:
   - pip install git+git://git.srobo.org/comp/ranker.git
   - pip install git+git://git.srobo.org/comp/srcomp.git
