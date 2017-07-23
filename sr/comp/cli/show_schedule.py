@@ -14,6 +14,8 @@ def command(settings):
 
     comp = SRComp(os.path.realpath(settings.compstate))
 
+    num_teams_per_arena = getattr(comp, 'num_teams_per_arena', len(comp.corners))
+
     matches = comp.schedule.matches
     now = datetime.now(comp.timezone)
     current_matches = list(comp.schedule.matches_at(now))
@@ -32,7 +34,7 @@ def command(settings):
     def print_col(text, last=False):
         print(text, end='|')
 
-    empty_teams = teams_str(' ' * 4)
+    empty_teams = teams_str(' ' * num_teams_per_arena)
     teams_len = len(empty_teams)
 
     print_col(' Num Time  ')
