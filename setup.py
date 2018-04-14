@@ -38,9 +38,11 @@ setup(
         ]
     },
     setup_requires=[
-        'mock >=1.0.1, <2',
-        'nose >=1.3, <2',
         'Sphinx >=1.3, <2'
+    ],
+    tests_require=[
+        'mock >=1.0.1',
+        'nose >=1.3, <2',
     ],
     test_suite='nose.collector'
 )
