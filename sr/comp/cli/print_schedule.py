@@ -40,7 +40,16 @@ class ScheduleGenerator(object):
                                                            self.state[:7]))
 
     def draw_vertical_bars(self):
-        for x in (134, 353):
+        if len(self.arenas) == 1:
+            cols = (200,)
+        elif len(self.arenas) == 2:
+            cols = (134, 353)
+        else:
+            raise RuntimeError(
+                "Unexpected number of arenas: {}".format(len(self.arenas)),
+            )
+
+        for x in cols:
             self.canvas.line(x, 30, x, 810)
 
     def draw_column_headings(self):
