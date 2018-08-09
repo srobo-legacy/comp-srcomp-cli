@@ -9,7 +9,7 @@ with open('README.rst') as f:
 install_requires = [
     'paramiko >=1.10, <2',
     'sr.comp >=1.0, <2',
-    'reportlab >=3.1.44, <4',
+    'reportlab >=3.1.44, <3.5',
     'requests >=2.5.1, <3',
     'ruamel.yaml >=0.13.0, <0.14',
     'simplejson >=3.6, <4',
