@@ -25,7 +25,7 @@ if sys.version_info < (3, 4):
 setup(
     name='sr.comp.cli',
     version='1.0.0',
-    packages=find_packages(),
+    packages=find_packages(exclude=('tests',)),
     namespace_packages=['sr', 'sr.comp'],
     description='CLI tools for srcomp repositories',
     long_description=long_description,
