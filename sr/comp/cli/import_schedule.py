@@ -209,7 +209,7 @@ def order_teams(compstate_path, team_ids):
     import os.path
     import yaml
 
-    from sr.comp.stable_random import Random
+    from sr.comp.knockout_scheduler.stable_random import Random
 
     layout_yaml = os.path.join(compstate_path, 'layout.yaml')
     if not os.path.exists(layout_yaml):
